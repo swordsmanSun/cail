@@ -2,18 +2,26 @@
     "name": "@tracer/cli",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
-    "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "tsup"
+    },
+    "main": "dist/index.js",
+    "type": "module",
+    "types": "dist/index.d.ts",
+    "bin": {
+        "tracer": "dist/index.js"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "commander": "^11.0.0"
+        "@types/node": "^20.5.0"
     },
     "dependencies": {
-        "@tracer/node": "workspace:^"
+        "@tracer/node": "workspace:^",
+        "commander": "^11.0.0"
+    },
+    "exports": {
+        "./package.json": "./package.json"
     }
 }
