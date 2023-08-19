@@ -1,5 +1,5 @@
 {
-    "name": "@cail/cli",
+    "name": "@tracer/cli",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -14,6 +14,6 @@
         "commander": "^11.0.0"
     },
     "dependencies": {
-        "@cail/node": "workspace:^"
+        "@tracer/node": "workspace:^"
     }
 }

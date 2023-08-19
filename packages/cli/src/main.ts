@@ -5,7 +5,7 @@ import { setupVersion } from './settings/version';
 const require = createRequire(import.meta.url);
 
 export function cli(appConfig: AppConfig) {
-    const program = new Command("cail");
+    const program = new Command("tracer");
 
     const ctx: CliContext = {
         program,

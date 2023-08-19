@@ -1,9 +1,9 @@
-安装 cail
+安装 tracer
 <CodeGroup>
 <CodeGroupItem title="npm" active>
 
 ```bash:no-line-numbers
-npm i cail -D
+npm i tracer -D
 ```
 
   </CodeGroupItem>
@@ -11,7 +11,7 @@ npm i cail -D
   <CodeGroupItem title="pnpm" >
 
 ```bash:no-line-numbers
-pnpm add cail -D
+pnpm add tracer -D
 ```
 
   </CodeGroupItem>
