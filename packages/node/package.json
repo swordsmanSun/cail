@@ -2,17 +2,19 @@
     "name": "@tracer/node",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "tsup"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "exports": {
         ".": {
-            "import": "./index.js",
-            "require": "./index.js"
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
         },
         "./package.json": "./package.json"
     }

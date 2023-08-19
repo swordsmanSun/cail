@@ -2,7 +2,6 @@ import { Command as CommandType } from 'commander';
 import { createRequire } from 'module';
 import { setupBuild } from './settings/build';
 import { setupDev } from './settings/dev';
-import { setupHelp } from './settings/help';
 import { setupVersion as setupInfo } from './settings/version';
 
 export function cli() {

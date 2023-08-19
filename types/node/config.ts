@@ -1,3 +1,6 @@
+import { Theme } from "./theme"
+import { Plugin } from "./plugin"
+
 interface SiteData {
     /**
      * The base URL the site will be deployed at
@@ -6,10 +9,10 @@ interface SiteData {
      *
      * @default '/'
      */
-    base: '/' | `/${string}/`
+    base?: '/' | `/${string}/`
 }
 
-declare interface AppConfig extends SiteData {
-    theme: Theme
+export declare interface Config extends SiteData {
+    theme?: Theme
     plugins?: Plugin[]
 } 

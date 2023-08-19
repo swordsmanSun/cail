@@ -1,15 +1,18 @@
 {
-  "name": "playground",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "tracer": "tracer"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@tracer/cli": "workspace:^"
-  }
+    "name": "playground",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "tracer:build": "tracer build",
+        "tracer:dev": "tracer dev"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@tracer/cli": "workspace:^",
+        "@tracer/node": "workspace:^"
+    },
+    "dependencies": {}
 }
