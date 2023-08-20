@@ -2,7 +2,7 @@
     "compilerOptions": {
         "moduleResolution": "node",
         "module": "esnext",
-        "typeRoots": ["node_modules/@types", "types"],
+        "typeRoots": ["node_modules/@types"]
     },
     "include": ["packages/**/*", "types/**/*"]
 }

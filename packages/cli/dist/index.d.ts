@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-declare function cli(): void;
+declare function cli(dirname: string): void;
 
 export { cli };

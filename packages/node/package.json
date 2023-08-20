@@ -17,5 +17,12 @@
             "require": "./dist/index.js"
         },
         "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@tracer/utils": "workspace:^",
+        "esbuild": "^0.19.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.5.0"
     }
 }

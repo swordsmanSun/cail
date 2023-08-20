@@ -21,4 +21,21 @@ declare interface Config extends SiteData {
 
 declare function defineConfig(config: Config): Config;
 
-export { defineConfig };
+/**
+ * @param dirname 当前执行目录
+ * @returns 配置文件绝对路径
+ */
+declare function getConfigFilePath(dirname?: string): string;
+/**
+ * @param filePath 文件绝对路径
+ * @param _cwd 当前执行目录
+ * @returns 配置对象
+ */
+declare function importConfigFile(filePath: string): Promise<{
+    default: Config;
+}>;
+declare function loadConfigModule(dirname: string): Promise<{
+    default: Config;
+}>;
+
+export { defineConfig, getConfigFilePath, importConfigFile, loadConfigModule };

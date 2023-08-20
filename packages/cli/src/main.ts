@@ -1,16 +1,17 @@
 import { Command as CommandType } from 'commander';
 import { createRequire } from 'module';
+import { cwd } from 'process';
 import { setupBuild } from './settings/build';
 import { setupDev } from './settings/dev';
 import { setupVersion as setupInfo } from './settings/version';
 
-export function cli() {
+export function cli(dirname: string) {
     const require = createRequire(import.meta.url);
-    // const program = new Command();
     const { program }: { program: CommandType } = require("commander")
     const ctx: CliContext = {
         program,
-        require
+        require,
+        dirname
     }
     // display version
     setupInfo(ctx)
@@ -22,4 +23,4 @@ export function cli() {
     program.parse()
 }
 
-cli()
+cli(cwd())
