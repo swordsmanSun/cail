@@ -1,4 +1,4 @@
-export interface PackageJsonModule {
+export interface PackageJsonObject {
     name: string;
     version: string;
     description: string;

@@ -3,7 +3,7 @@ type TupleLast<T extends unknown[]> = T extends [...infer _, infer L] ? L : neve
 
 declare function Pipe<Fns extends ((...args: unknown[]) => unknown)[]>(...fns: Fns): (...args: Parameters<Fns[0]>) => ReturnType<Cast<TupleLast<Fns>, (...args: unknown[]) => unknown>>;
 
-interface PackageJsonModule {
+interface PackageJsonObject {
     name: string;
     version: string;
     description: string;
@@ -58,6 +58,6 @@ declare const packageJsonDefault: () => {
  * @param fileAbsPath the absolute path of package.json
  * @returns the out module of the package.json with default values
  */
-declare function importPackageJson(fileAbsPath: string): Promise<PackageJsonModule>;
+declare function importPackageJson(fileAbsPath: string): Promise<PackageJsonObject>;
 
-export { PackageJsonModule, Pipe, importModule, importPackageJson, packageJsonDefault };
+export { PackageJsonObject, Pipe, importModule, importPackageJson, packageJsonDefault };

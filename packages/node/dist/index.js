@@ -4,7 +4,7 @@ function defineConfig(config) {
 }
 
 // src/utils/configFile.ts
-import { existsSync } from "fs";
+import { existsSync, unlinkSync } from "fs";
 import { dirname, join } from "path";
 import { cwd } from "process";
 import { pathToFileURL } from "url";
@@ -27,7 +27,13 @@ async function importConfigFile(filePath) {
     external: ["esbuild"]
   });
   const tempFilePath = join(_cwd, "tracer.config.temp.js");
-  const module = await import(pathToFileURL(tempFilePath).href);
+  let module;
+  try {
+    module = await import(pathToFileURL(tempFilePath).href);
+  } catch (error) {
+    module = await import(tempFilePath);
+  }
+  unlinkSync(tempFilePath);
   return module;
 }
 async function loadConfigModule(dirname2) {
@@ -35,9 +41,57 @@ async function loadConfigModule(dirname2) {
   const module = await importConfigFile(filePath);
   return module;
 }
+async function loadConfigObject(dirname2) {
+  const module = await loadConfigModule(dirname2);
+  if (!module.default) {
+    throw new Error("config file has no default export object");
+  }
+  return module.default;
+}
+
+// src/analyzers/npmAnalyzer.ts
+import { importPackageJson } from "@tracer/utils";
+async function npmAnalyzer(pkgJSONAbsPath, modulesDir) {
+  const module = await importPackageJson(pkgJSONAbsPath);
+  return 1;
+}
+
+// src/analyzers/pnpmAnalyzer.ts
+import { importPackageJson as importPackageJson2 } from "@tracer/utils";
+async function pnpmAnalyzer(pkgJSONAbsPath, modulesDir) {
+  const module = await importPackageJson2(pkgJSONAbsPath);
+  return 1;
+}
+
+// src/analyzers/yarnAnalyzer.ts
+import { importPackageJson as importPackageJson3 } from "@tracer/utils";
+async function yarnAnalyzer(pkgJSONAbsPath, modulesDir) {
+  const module = await importPackageJson3(pkgJSONAbsPath);
+  return 1;
+}
+
+// src/analyzers/base.ts
+var getAnalyzerByName = (() => {
+  const analyzerMap = {
+    npm: npmAnalyzer,
+    pnpm: pnpmAnalyzer,
+    yarn: yarnAnalyzer
+  };
+  return (name) => {
+    if (name in analyzerMap) {
+      return analyzerMap[name];
+    }
+    throw new Error(`Analyzer ${name} not found`);
+  };
+})();
 export {
   defineConfig,
+  getAnalyzerByName,
   getConfigFilePath,
   importConfigFile,
-  loadConfigModule
+  loadConfigModule,
+  loadConfigObject,
+  npmAnalyzer,
+  pnpmAnalyzer,
+  yarnAnalyzer
 };

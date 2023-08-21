@@ -1,6 +1,6 @@
 import { join } from "path";
 import { expect, test } from "vitest";
-import { getConfigFilePath, importConfigFile, loadConfigModule } from "../../src/utils";
+import { getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject } from "../../src/utils";
 
 test("getConfigFilePath", () => {
     expect(getConfigFilePath(__dirname)).toBe(join(__dirname, "tracer.config.ts"))
@@ -17,5 +17,10 @@ test("loadConfigModule", async () => {
         default: {
             base: "/"
         }
+    })
+})
+test("loadConfigObject", async () => {
+    expect(await loadConfigObject(__dirname)).toEqual({
+        base: "/"
     })
 })

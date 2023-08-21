@@ -4,5 +4,5 @@
         "module": "esnext",
         "typeRoots": ["node_modules/@types"]
     },
-    "include": ["packages/**/*", "types/**/*"]
+    "include": ["packages/**/**/*", "types/**/*"]
 }

@@ -1,7 +1,7 @@
 import { Theme } from "./theme"
 import { Plugin } from "./plugin"
 
-interface SiteData {
+export interface SiteDataConfig {
     /**
      * The base URL the site will be deployed at
      *
@@ -11,11 +11,15 @@ interface SiteData {
      */
     base?: '/' | `/${string}/`
 }
-interface Project {
+export interface ProjectConfig {
     /**
      * The name of the project
      */
     name?: string,
+    /**
+     * The type of  package manager
+     */
+    type?: "npm" | "pnpm" | "yarn"
     /**
      * The path of the project
      */
@@ -23,11 +27,21 @@ interface Project {
     /**
      * The sub project
      */
-    children: Project[]
+    children?: ProjectConfig[]
+}
+export interface ServerConfig {
+    host?: string,
+    port?: string,
+    open?: boolean
+}
+export interface DirConfig {
+    temp?: string
 }
 
-export declare interface Config extends SiteData {
-    projects: Project[],
+export declare interface Config extends SiteDataConfig {
+    projects?: ProjectConfig[],
     theme?: Theme
-    plugins?: Plugin[]
+    plugins?: Plugin[],
+    server?: ServerConfig,
+    dir?: DirConfig
 } 

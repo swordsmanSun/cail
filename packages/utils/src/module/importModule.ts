@@ -1,5 +1,5 @@
 import { pathToFileURL } from "url"
-import { PackageJsonModule } from "../../types"
+import { PackageJsonObject } from "../../types"
 /**
  * @param fileAbsPath the absolute path of the module
  * @returns the out module of the config file
@@ -37,12 +37,12 @@ export const packageJsonDefault = () => ({
 })
 /**
  * @param fileAbsPath the absolute path of package.json
- * @returns the out module of the package.json with default values
+ * @returns the out object of the package.json with default values
  */
 export async function importPackageJson(fileAbsPath: string) {
-    const module = (await importModule<{ default: Partial<PackageJsonModule> }>(fileAbsPath)).default
+    const module = (await importModule<{ default: Partial<PackageJsonObject> }>(fileAbsPath)).default
     // assign default values
-    const pkg: PackageJsonModule = {
+    const pkg: PackageJsonObject = {
         ...packageJsonDefault(),
         ...module
     }

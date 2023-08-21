@@ -1,4 +1,4 @@
-import { loadConfigModule } from "@tracer/node"
+import { loadConfigObject } from "@tracer/node"
 
 export function setupBuild(ctx: CliContext) {
     const { program, dirname } = ctx
@@ -7,6 +7,7 @@ export function setupBuild(ctx: CliContext) {
         .command("build")
         .description("Build to static site")
         .action(async () => {
-            const config = (await loadConfigModule(dirname)).default
+            const config = await loadConfigObject(dirname)
+            console.log(config);
         })
 }

@@ -56,4 +56,17 @@ export async function loadConfigModule(dirname: string) {
     const filePath = getConfigFilePath(dirname)
     const module = await importConfigFile(filePath)
     return module
-} 
+}
+/**
+ * @param dirname current file execution directory
+ * @returns  the out default export object of the config file
+ */
+export async function loadConfigObject(dirname: string){
+    const module = await loadConfigModule(dirname)
+
+    if (!module.default){
+        throw new Error("config file has no default export object")
+    }
+
+    return module.default
+}
