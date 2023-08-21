@@ -11,8 +11,23 @@ interface SiteData {
      */
     base?: '/' | `/${string}/`
 }
+interface Project {
+    /**
+     * The name of the project
+     */
+    name?: string,
+    /**
+     * The path of the project
+     */
+    path: string,
+    /**
+     * The sub project
+     */
+    children: Project[]
+}
 
 export declare interface Config extends SiteData {
+    projects: Project[],
     theme?: Theme
     plugins?: Plugin[]
 } 

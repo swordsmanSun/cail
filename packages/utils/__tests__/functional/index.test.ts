@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { Pipe } from '.';
+import { Pipe } from '../../src/functional';
 
 test("pipe", () => {
     const add = (a: number, b: number) => a + b;

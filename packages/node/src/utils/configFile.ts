@@ -1,12 +1,12 @@
 import { existsSync, unlinkSync } from "fs"
-import { dirname, join, resolve } from "path"
+import { dirname, join } from "path"
 import { Config } from "../../../../types/node/config"
 import { cwd } from "process"
 import { pathToFileURL } from "url"
 
 /**
- * @param dirname 当前执行目录
- * @returns 配置文件绝对路径
+ * @param dirname current file execution directory
+ * @returns absolute path of the config file
  */
 export function getConfigFilePath(dirname = cwd()) {
     const extensions = ["ts", "js", "mjs"]
@@ -17,14 +17,13 @@ export function getConfigFilePath(dirname = cwd()) {
     return join(dirname, configFileName + "." + extension)
 }
 /**
- * @param filePath 文件绝对路径
- * @param _cwd 当前执行目录
- * @returns 配置对象
+ * @param filePath file absolute path
+ * @returns current config object
  */
 export async function importConfigFile(filePath: string) {
     const _cwd = dirname(filePath)
-    const { build } = await import("esbuild")
     // build file 
+    const { build } = await import("esbuild")
     await build({
         absWorkingDir: _cwd,
         entryPoints: [filePath],
@@ -36,14 +35,23 @@ export async function importConfigFile(filePath: string) {
     })
     // import file
     const tempFilePath = join(_cwd, "tracer.config.temp.js")
-
-    const module = await import(pathToFileURL(tempFilePath).href)
+    let module: { default: Config }
+    try {
+        // user environment
+        module = await import(pathToFileURL(tempFilePath).href)
+    } catch (error) {
+        // testing environment
+        module = await import(tempFilePath)
+    }
     // remove file 
     unlinkSync(tempFilePath)
 
     return module as { default: Config }
 }
-
+/**
+ * @param dirname current file execution directory
+ * @returns the out module of the config file
+ */
 export async function loadConfigModule(dirname: string) {
     const filePath = getConfigFilePath(dirname)
     const module = await importConfigFile(filePath)
