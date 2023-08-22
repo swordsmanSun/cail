@@ -1,4 +1,4 @@
-import { PackageJsonModule } from '@tracer/utils';
+import { PackageJsonObject } from '@tracer/utils';
 
 interface Theme {
 }
@@ -6,7 +6,7 @@ interface Theme {
 interface Plugin {
 }
 
-interface SiteData {
+interface SiteDataConfig {
     /**
      * The base URL the site will be deployed at
      *
@@ -16,11 +16,15 @@ interface SiteData {
      */
     base?: '/' | `/${string}/`;
 }
-interface Project {
+interface ProjectConfig {
     /**
      * The name of the project
      */
     name?: string;
+    /**
+     * The type of  package manager
+     */
+    type?: "npm" | "pnpm" | "yarn";
     /**
      * The path of the project
      */
@@ -28,12 +32,22 @@ interface Project {
     /**
      * The sub project
      */
-    children: Project[];
+    children?: ProjectConfig[];
 }
-declare interface Config extends SiteData {
-    projects: Project[];
+interface ServerConfig {
+    host?: string;
+    port?: string;
+    open?: boolean;
+}
+interface DirConfig {
+    temp?: string;
+}
+declare interface Config extends SiteDataConfig {
+    projects?: ProjectConfig[];
     theme?: Theme;
     plugins?: Plugin[];
+    server?: ServerConfig;
+    dir?: DirConfig;
 }
 
 declare function defineConfig(config: Config): Config;
@@ -67,7 +81,7 @@ type DepNode = {
     /**
      * The object value of the package.json
      */
-    packageModule: PackageJsonModule;
+    packageModule: PackageJsonObject;
     /**
      * Cyclic node or not
      */
@@ -75,6 +89,16 @@ type DepNode = {
     children?: DepNode[];
 };
 type DepTree = DepNode[];
+type ProjectOptions = Required<ProjectConfig> & {
+    /**
+    * The object value of the package.json
+    */
+    packageModule: Partial<PackageJsonObject>;
+    children: ProjectOptions[];
+};
+type PathOptions = {
+    [key in keyof DirConfig]: (...relativePaths: string[]) => string;
+};
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
@@ -99,4 +123,7 @@ declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promi
 
 declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => typeof npmAnalyzer | typeof pnpmAnalyzer | typeof yarnAnalyzer;
 
-export { DepNode, DepTree, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, pnpmAnalyzer, yarnAnalyzer };
+declare function createBuildApp(config: Config): void;
+declare function createDevApp(config: Config): void;
+
+export { DepNode, DepTree, PathOptions, ProjectOptions, createBuildApp, createDevApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, pnpmAnalyzer, yarnAnalyzer };

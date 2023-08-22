@@ -63,14 +63,14 @@ describe('resolveProjectOptions', () => {
 describe("resolvePathOptions", () => {
     test("no params", () => {
         const dir = resolvePathOptions()
-        expect(dir.temp()).toBe(join(cwd(), "./.analyzer/temp"))
-        expect(dir.temp("test.json")).toBe(join(cwd(), "./.analyzer/temp/test.json"))
+        expect(dir.temp()).toBe(join(cwd(), "./analysis/temp"))
+        expect(dir.temp("test.json")).toBe(join(cwd(), "./analysis/temp/test.json"))
     })
     test("has params", () => {
         const dir = resolvePathOptions({
             temp: __dirname
         })
-        expect(dir.temp()).toBe(join(__dirname, "./.analyzer/temp"))
-        expect(dir.temp("test/test.json")).toBe(join(__dirname, "./.analyzer/temp/test/test.json"))
+        expect(dir.temp()).toBe(join(__dirname, "./analysis/temp"))
+        expect(dir.temp("test/test.json")).toBe(join(__dirname, "./analysis/temp/test/test.json"))
     })
 })

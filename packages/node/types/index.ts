@@ -21,4 +21,18 @@ export type ProjectOptions = Required<ProjectConfig> & {
     packageModule: Partial<PackageJsonObject>
     children: ProjectOptions[]
 }
-// export type PathOptions = Required<DirConfig>
+export type PathOptions = {
+    [key in keyof DirConfig]: (...relativePaths: string[]) => string
+}
+export type WriteTemp = (relativeFilePath: string, content: string) => string
+export type APP = {
+    projects: ProjectOptions[]
+    path: PathOptions
+    writeTemp: WriteTemp
+}
+export type Hooks = {
+    analyzing: (depNode?: DepNode) => void
+    watching: () => void
+    analyzed: (depTree?: DepTree) => void
+    generated: () => void
+}

@@ -30,7 +30,6 @@ test("npmAnalyzer", async () => {
         ...reactPkgNode,
         isCircular: true
     })
-
     // expect(
     //     await npmAnalyzer(
     //         join(__dirname, "./npmProject/package.json"),

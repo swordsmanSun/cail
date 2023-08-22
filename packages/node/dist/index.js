@@ -84,7 +84,18 @@ var getAnalyzerByName = (() => {
     throw new Error(`Analyzer ${name} not found`);
   };
 })();
+
+// src/app/resolveOptions.ts
+import { importPackageJson as importPackageJson4 } from "@tracer/utils";
+
+// src/app/createApp.ts
+function createBuildApp(config) {
+}
+function createDevApp(config) {
+}
 export {
+  createBuildApp,
+  createDevApp,
   defineConfig,
   getAnalyzerByName,
   getConfigFilePath,

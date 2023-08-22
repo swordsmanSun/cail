@@ -6,9 +6,9 @@ import { ProjectOptions } from "../../types";
 // process user config
 export function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string) {
     // assign default value
-    const PathJoin = (basePath: string) => (...paths: string[]) => join(basePath, ...paths)
+    const PathJoin = (basePath: string) => (...relativePaths: string[]) => join(basePath, ...relativePaths)
     return {
-        temp: PathJoin(join(dirConfig?.temp ?? projectDir ?? cwd(), "./.analyzer/temp"))
+        temp: PathJoin(join(dirConfig?.temp ?? projectDir ?? cwd(), "./analysis/temp"))
     }
 }
 
