@@ -88,6 +88,13 @@ var getAnalyzerByName = (() => {
 // src/app/resolveOptions.ts
 import { importPackageJson as importPackageJson4 } from "@tracer/utils";
 
+// src/app/createOptions.ts
+import { outputFileSync } from "fs-extra";
+
+// src/app/plugin.ts
+import { chalk, debug } from "@tracer/utils";
+var log = debug("@tracer/node:app");
+
 // src/app/createApp.ts
 function createBuildApp(config) {
 }

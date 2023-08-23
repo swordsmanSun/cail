@@ -1,3 +1,7 @@
+// src/index.ts
+import { default as default2 } from "debug";
+import { default as default3 } from "chalk";
+
 // src/functional/index.ts
 function Pipe(...fns) {
   return (...args) => fns.reduce((arg, fn) => arg.length ? fn(...arg) : fn(arg), args);
@@ -38,9 +42,13 @@ async function importPackageJson(fileAbsPath) {
   };
   return pkg;
 }
+const a = 2
 export {
   Pipe,
+  default3 as chalk,
+  default2 as debug,
   importModule,
   importPackageJson,
-  packageJsonDefault
+  packageJsonDefault,
+  a
 };

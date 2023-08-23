@@ -99,6 +99,30 @@ type ProjectOptions = Required<ProjectConfig> & {
 type PathOptions = {
     [key in keyof DirConfig]: (...relativePaths: string[]) => string;
 };
+type WriteTemp = (relativeFilePath: string, content: string) => string;
+type APPBase = {
+    projects: ProjectOptions[];
+    path: PathOptions;
+};
+type AppMethods = {
+    use: (plugin: PluginFunction) => void;
+};
+type AppUtils = {
+    writeTemp: WriteTemp;
+};
+type App = APPBase & AppUtils & AppMethods;
+type Hooks = {
+    temped: () => void;
+    analyzing: (depNode?: DepNode) => void;
+    watching: () => void;
+    analyzed: (depTree?: DepTree) => void;
+    generated: () => void;
+};
+type PluginFunction = (app: Omit<App, keyof AppMethods>) => void;
+type PluginObjectUserSide = {
+    name: string;
+};
+type PluginObject = PluginObjectUserSide;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
@@ -126,4 +150,4 @@ declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => typeof npmAn
 declare function createBuildApp(config: Config): void;
 declare function createDevApp(config: Config): void;
 
-export { DepNode, DepTree, PathOptions, ProjectOptions, createBuildApp, createDevApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, pnpmAnalyzer, yarnAnalyzer };
+export { APPBase, App, AppMethods, AppUtils, DepNode, DepTree, Hooks, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, WriteTemp, createBuildApp, createDevApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, pnpmAnalyzer, yarnAnalyzer };

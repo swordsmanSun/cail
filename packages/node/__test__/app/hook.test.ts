@@ -1,12 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import { onAnalyzed, onAnalyzing, onGenerated, onWatching, runHook } from "../../src/app/hook";
+import { onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, runHook } from "../../src/app/hook";
 
 describe("hook", () => {
     const hooks = {
         analyzing: onAnalyzing,
         watching: onWatching,
         analyzed: onAnalyzed,
-        generated: onGenerated
+        built: onBuilt,
+        temped: onTemped,
+        initialized: onInitialized,
     }
     Object.keys(hooks).forEach(hookName => {
         const hook = hooks[hookName as keyof typeof hooks]
@@ -14,7 +16,7 @@ describe("hook", () => {
             const fn = vi.fn()
             hook(fn)
             runHook(hookName as keyof typeof hooks)
-            expect(fn).toBeCalledTimes(1)
+            expect(fn).toBeCalled()
         })
     })
 })

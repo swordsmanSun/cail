@@ -1,5 +1,4 @@
-import { Theme } from "./theme"
-import { Plugin } from "./plugin"
+import { PluginFunction } from "."
 
 export interface SiteDataConfig {
     /**
@@ -40,8 +39,8 @@ export interface DirConfig {
 
 export declare interface Config extends SiteDataConfig {
     projects?: ProjectConfig[],
-    theme?: Theme
-    plugins?: Plugin[],
+    // theme?: Theme
+    plugins?: PluginFunction[],
     server?: ServerConfig,
     dir?: DirConfig
-} 
+}

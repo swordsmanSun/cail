@@ -1,7 +1,7 @@
 import { importPackageJson } from "@tracer/utils";
 import { join } from "path";
 import { cwd } from "process";
-import { DirConfig, ProjectConfig } from "../../../../types/node/config";
+import { DirConfig, ProjectConfig } from "../../types/config";
 import { ProjectOptions } from "../../types";
 // process user config
 export function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string) {
@@ -33,7 +33,8 @@ export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], p
             name: node.name || (await importPackageJson(join(node.path, "./package.json"))).name,
             type: node.type || "npm",
             packageModule: await importPackageJson(join(node.path, "./package.json")),
-            children: []
+            children: [],
+            dependencyTree: null
         })
 
         for (let index = 0; index < node.children?.length; index++) {

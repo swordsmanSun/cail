@@ -1,5 +1,5 @@
 import { importPackageJson } from "@tracer/utils";
-import { DepTree } from "../../types"
+import { DepTree } from "../../types/dependency";
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory

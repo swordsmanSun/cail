@@ -1,3 +1,6 @@
+export { default as debug } from 'debug';
+export { default as chalk } from 'chalk';
+
 type Cast<A, B> = A extends B ? A : B;
 type TupleLast<T extends unknown[]> = T extends [...infer _, infer L] ? L : never;
 
@@ -56,7 +59,7 @@ declare const packageJsonDefault: () => {
 };
 /**
  * @param fileAbsPath the absolute path of package.json
- * @returns the out module of the package.json with default values
+ * @returns the out object of the package.json with default values
  */
 declare function importPackageJson(fileAbsPath: string): Promise<PackageJsonObject>;
 

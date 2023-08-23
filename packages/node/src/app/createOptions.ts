@@ -1,10 +1,10 @@
 import { writeFileSync } from "fs"
 import { outputFileSync } from "fs-extra"
-import { PathOptions, WriteTemp } from "../../types"
+import { App, AppMethods, AppUtils, PathOptions, PluginFunction, WriteTemp } from "../../types"
 /**
  * create write temp file util for tracer app
- * @param path 
- * @returns 
+ * @param path path options
+ * @returns write temp file util
  */
 export function CreateWriteTemp(path: PathOptions): WriteTemp {
     return (relativeFilePath: string, content: string) => {

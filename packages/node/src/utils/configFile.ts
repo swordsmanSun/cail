@@ -1,6 +1,6 @@
 import { existsSync, unlinkSync } from "fs"
 import { dirname, join } from "path"
-import { Config } from "../../../../types/node/config"
+import { Config } from "../../types/config"
 import { cwd } from "process"
 import { pathToFileURL } from "url"
 
