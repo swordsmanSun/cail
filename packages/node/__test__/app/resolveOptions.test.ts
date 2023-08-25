@@ -2,7 +2,9 @@ import { importPackageJson } from "@tracer/utils";
 import { cwd } from "process";
 import { join } from "path";
 import { expect, test, describe } from "vitest";
-import { resolveProjectOptions, resolvePathOptions } from "../../src/app/resolveOptions";
+import { resolveProjectOptions, resolvePathOptions, resolveServerOptions, resolveBuildOptions } from "../../src/app/resolveOptions";
+import { readFileSync } from "fs";
+import { createRequire } from "module";
 
 describe('resolveProjectOptions', () => {
     test("empty params", async () => {
@@ -67,14 +69,39 @@ describe('resolveProjectOptions', () => {
 describe("resolvePathOptions", () => {
     test("no params", () => {
         const dir = resolvePathOptions()
-        expect(dir.temp()).toBe(join(cwd(), "./analysis/temp"))
-        expect(dir.temp("test.json")).toBe(join(cwd(), "./analysis/temp/test.json"))
+        expect(dir.temp()).toBe(join(cwd(), "./analysis/.temp/"))
+        expect(dir.temp("test.json")).toBe(join(cwd(), "./analysis/.temp/test.json"))
     })
     test("has params", () => {
         const dir = resolvePathOptions({
             temp: __dirname
         })
-        expect(dir.temp()).toBe(join(__dirname, "./analysis/temp"))
-        expect(dir.temp("test/test.json")).toBe(join(__dirname, "./analysis/temp/test/test.json"))
+        expect(dir.temp()).toBe(join(__dirname, "./analysis/.temp/"))
+        expect(dir.temp("test/test.json")).toBe(join(__dirname, "./analysis/.temp/test/test.json"))
+    })
+})
+
+describe("resolveServerOptions", () => {
+    const defaultOptions = resolveServerOptions()
+    test("default values", () => {
+        expect(defaultOptions).toEqual({
+            port: 3001,
+            host: "127.0.0.1",
+            open: true,
+            template: "@tracer/client/templates/dev.html"
+        })
+    })
+})
+
+describe("resolveBuildOptions", () => {
+    test("default values", () => {
+        expect(resolveBuildOptions()).toEqual({
+            template: "@tracer/client/templates/build.html"
+        })
+    })
+    test("custom values", () => {
+        expect(resolveBuildOptions({ template: "1" })).toEqual({
+            template: "1"
+        })
     })
 })

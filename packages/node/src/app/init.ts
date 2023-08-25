@@ -9,7 +9,7 @@ const log = debug("@tracer/node:app")
  * @param app app base data and utils
  */
 export async function initApp(app: App) {
-    log("init app")
+    log("initializing app...")
     const { use, plugins, projects } = app
 
     // call the plugin function
@@ -37,7 +37,7 @@ export async function initApp(app: App) {
     
     runHook("initialized", projects)
 
-    log("init app done")
+    log("initialize app done")
 }
 export function CreateInitAppFunction(app: App) {
     return () => initApp(app)

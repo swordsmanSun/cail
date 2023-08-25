@@ -30,17 +30,27 @@ export interface ProjectConfig {
 }
 export interface ServerConfig {
     host?: string,
-    port?: string,
+    port?: number,
     open?: boolean
+    template?: string
+}
+export interface buildConfig {
+    outDir?: string
+    template?: string
 }
 export interface DirConfig {
     temp?: string
+    cache?: string
+    public?: string
+    out?: string
+    root?: string
 }
 
 export declare interface Config extends SiteDataConfig {
     projects?: ProjectConfig[],
     // theme?: Theme
     plugins?: PluginFunction[],
+    dir?: DirConfig,
     server?: ServerConfig,
-    dir?: DirConfig
+    build?: buildConfig
 }

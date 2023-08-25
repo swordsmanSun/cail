@@ -1,14 +1,18 @@
-import { importPackageJson } from "@tracer/utils";
+import { importPackageJson, withDefault } from "@tracer/utils";
 import { join } from "path";
 import { cwd } from "process";
-import { DirConfig, ProjectConfig } from "../../types/config";
-import { ProjectOptions } from "../../types";
+import { DirConfig, ProjectConfig, ServerConfig, buildConfig } from "../../types/config";
+import { PathOptions, ProjectOptions } from "../../types";
 // process user config
 export function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string) {
     // assign default value
     const PathJoin = (basePath: string) => (...relativePaths: string[]) => join(basePath, ...relativePaths)
     return {
-        temp: PathJoin(join(dirConfig?.temp ?? projectDir ?? cwd(), "./analysis/temp"))
+        root: PathJoin(join(dirConfig?.root ?? projectDir ?? cwd(), "./analysis/")),
+        temp: PathJoin(join(dirConfig?.temp ?? projectDir ?? cwd(), "./analysis/.temp/")),
+        out: PathJoin(join(dirConfig?.out ?? projectDir ?? cwd(), "./analysis/dist/")),
+        cache: PathJoin(join(dirConfig?.cache ?? projectDir ?? cwd(), "./analysis/.cache/")),
+        public: PathJoin(join(dirConfig?.out ?? projectDir ?? cwd(), "./analysis/public/")),
     }
 }
 
@@ -48,4 +52,17 @@ export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], p
     }
 
     return projectOptionsList
+}
+export function resolveServerOptions(serverConfig?: ServerConfig) {
+    return withDefault<ServerConfig>(serverConfig, {
+        port: 3001,
+        host: "127.0.0.1",
+        open: true,
+        template: "@tracer/client/templates/dev.html"
+    })
+}
+export function resolveBuildOptions(buildConfig?: buildConfig) {
+    return withDefault<buildConfig>(buildConfig, {
+        template: "@tracer/client/templates/build.html"
+    })
 }

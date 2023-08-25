@@ -17,7 +17,7 @@ describe("write", async () => {
         projects: [1, 2, 3, 4, 5]
     } as any)
     write()
-    const relativePath = "./analysis/temp/projectsData.js"
+    const relativePath = "./analysis/.temp/projectsData.js"
     const { projects } = await import(relativePath)
 
     test("write function", () => {

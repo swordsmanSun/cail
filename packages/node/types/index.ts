@@ -1,5 +1,5 @@
 import { PackageJsonObject } from "@tracer/utils"
-import { ProjectConfig, DirConfig } from "./config"
+import { ProjectConfig, DirConfig, ServerConfig, buildConfig } from "./config"
 import { DepTree } from "./dependency"
 
 export type ProjectOptions = Omit<Required<ProjectConfig>, "children"> & {
@@ -13,11 +13,16 @@ export type ProjectOptions = Omit<Required<ProjectConfig>, "children"> & {
 export type PathOptions = {
     [key in keyof DirConfig]: (...relativePaths: string[]) => string
 }
+export type ServerOptions = Required<ServerConfig>
+export type BuildOptions = Required<buildConfig>
 export type WriteTemp = (relativeFilePath: string, content: string) => string
 export type APPBase = {
+    base: '/' | `/${string}/`,
     projects: ProjectOptions[]
     plugins: PluginFunction[]
     path: PathOptions
+    server: ServerOptions
+    build: BuildOptions
 }
 export type AppMethods = {
     use: (plugin: PluginFunction) => void

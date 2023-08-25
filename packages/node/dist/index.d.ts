@@ -1,10 +1,64 @@
 import { PackageJsonObject } from '@tracer/utils';
 
-interface Theme {
-}
+type Hooks = {
+    temped: () => void;
+    analyzing: (depNode: DepNode, depth: number) => void;
+    watching: () => void;
+    analyzed: (project: ProjectOptions) => void;
+    built: () => void;
+    initialized: (projects: ProjectOptions[]) => void;
+};
 
-interface Plugin {
-}
+type DepNode = {
+    /**
+     * The object value of the package.json
+     */
+    packageModule: PackageJsonObject;
+    /**
+     * Cyclic node or not
+     */
+    isCircular?: boolean;
+    children?: DepNode[];
+};
+type DepTree = DepNode[];
+type Visitor = Hooks["analyzing"];
+
+type ProjectOptions = Omit<Required<ProjectConfig>, "children"> & {
+    /**
+    * The object value of the package.json
+    */
+    packageModule: Partial<PackageJsonObject>;
+    children: ProjectOptions[];
+    dependencyTree: DepTree;
+};
+type PathOptions = {
+    [key in keyof DirConfig]: (...relativePaths: string[]) => string;
+};
+type ServerOptions = Required<ServerConfig>;
+type BuildOptions = Required<buildConfig>;
+type WriteTemp = (relativeFilePath: string, content: string) => string;
+type APPBase = {
+    base: '/' | `/${string}/`;
+    projects: ProjectOptions[];
+    plugins: PluginFunction[];
+    path: PathOptions;
+    server: ServerOptions;
+    build: BuildOptions;
+};
+type AppMethods = {
+    use: (plugin: PluginFunction) => void;
+    init: () => void;
+    write: () => void;
+};
+type AppUtils = {
+    writeTemp: WriteTemp;
+};
+type App = APPBase & AppUtils & AppMethods;
+type PluginFunction = (app: Omit<App, keyof AppMethods>) => void;
+type PluginObjectUserSide = {
+    name: string;
+};
+type PluginObject = PluginObjectUserSide;
 
 interface SiteDataConfig {
     /**
@@ -36,18 +90,27 @@ interface ProjectConfig {
 }
 interface ServerConfig {
     host?: string;
-    port?: string;
+    port?: number;
     open?: boolean;
+    template?: string;
+}
+interface buildConfig {
+    outDir?: string;
+    template?: string;
 }
 interface DirConfig {
     temp?: string;
+    cache?: string;
+    public?: string;
+    out?: string;
+    root?: string;
 }
 declare interface Config extends SiteDataConfig {
     projects?: ProjectConfig[];
-    theme?: Theme;
-    plugins?: Plugin[];
-    server?: ServerConfig;
+    plugins?: PluginFunction[];
     dir?: DirConfig;
+    server?: ServerConfig;
+    build?: buildConfig;
 }
 
 declare function defineConfig(config: Config): Config;
@@ -77,53 +140,6 @@ declare function loadConfigModule(dirname: string): Promise<{
  */
 declare function loadConfigObject(dirname: string): Promise<Config>;
 
-type DepNode = {
-    /**
-     * The object value of the package.json
-     */
-    packageModule: PackageJsonObject;
-    /**
-     * Cyclic node or not
-     */
-    isCircular?: boolean;
-    children?: DepNode[];
-};
-type DepTree = DepNode[];
-type ProjectOptions = Required<ProjectConfig> & {
-    /**
-    * The object value of the package.json
-    */
-    packageModule: Partial<PackageJsonObject>;
-    children: ProjectOptions[];
-};
-type PathOptions = {
-    [key in keyof DirConfig]: (...relativePaths: string[]) => string;
-};
-type WriteTemp = (relativeFilePath: string, content: string) => string;
-type APPBase = {
-    projects: ProjectOptions[];
-    path: PathOptions;
-};
-type AppMethods = {
-    use: (plugin: PluginFunction) => void;
-};
-type AppUtils = {
-    writeTemp: WriteTemp;
-};
-type App = APPBase & AppUtils & AppMethods;
-type Hooks = {
-    temped: () => void;
-    analyzing: (depNode?: DepNode) => void;
-    watching: () => void;
-    analyzed: (depTree?: DepTree) => void;
-    generated: () => void;
-};
-type PluginFunction = (app: Omit<App, keyof AppMethods>) => void;
-type PluginObjectUserSide = {
-    name: string;
-};
-type PluginObject = PluginObjectUserSide;
-
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
@@ -145,9 +161,35 @@ declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promi
  */
 declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promise<DepTree>;
 
-declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => typeof npmAnalyzer | typeof pnpmAnalyzer | typeof yarnAnalyzer;
+declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => (projectPath: string, visitor: Visitor) => Promise<DepTree>;
 
-declare function createBuildApp(config: Config): void;
-declare function createDevApp(config: Config): void;
+declare function createApp(config: Config): Promise<App>;
 
-export { APPBase, App, AppMethods, AppUtils, DepNode, DepTree, Hooks, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, WriteTemp, createBuildApp, createDevApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, pnpmAnalyzer, yarnAnalyzer };
+declare const hooks: {
+    analyzing: ((depNode: DepNode, depth: number) => void)[];
+    analyzed: ((project: ProjectOptions) => void)[];
+    initialized: ((projects: ProjectOptions[]) => void)[];
+    temped: (() => void)[];
+    watching: (() => void)[];
+    built: (() => void)[];
+};
+declare function runHook<N extends keyof typeof hooks>(name: N, ...args: Parameters<Hooks[N]>): void;
+declare function onTemped(fn: Hooks["temped"]): void;
+declare function onAnalyzing(fn: Hooks["analyzing"]): void;
+declare function onAnalyzed(fn: Hooks["analyzed"]): void;
+declare function onBuilt(fn: Hooks["built"]): void;
+declare function onWatching(fn: Hooks["watching"]): void;
+declare function onInitialized(fn: Hooks["initialized"]): void;
+
+declare function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string): {
+    root: (...relativePaths: string[]) => string;
+    temp: (...relativePaths: string[]) => string;
+    out: (...relativePaths: string[]) => string;
+    cache: (...relativePaths: string[]) => string;
+    public: (...relativePaths: string[]) => string;
+};
+declare function resolveProjectOptions(projectsConfigs?: ProjectConfig[], projectDir?: string): Promise<ProjectOptions[]>;
+declare function resolveServerOptions(serverConfig?: ServerConfig): ServerConfig;
+declare function resolveBuildOptions(buildConfig?: buildConfig): buildConfig;
+
+export { APPBase, App, AppMethods, AppUtils, BuildOptions, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, WriteTemp, createApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, pnpmAnalyzer, resolveBuildOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };
