@@ -1,17 +1,19 @@
 {
-    "name": "@tracer/plugin-output",
+    "name": "playground",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.js",
+    "main": "index.js",
     "type": "module",
-    "types": "dist/index.d.ts",
     "scripts": {
-        "build": "tsup"
+        "tracer:build": "tracer build",
+        "tracer:dev": "tracer dev"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@tracer/cli": "workspace:^",
         "@tracer/node": "workspace:^"
-    }
+    },
+    "dependencies": {}
 }

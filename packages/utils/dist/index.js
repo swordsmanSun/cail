@@ -42,7 +42,19 @@ async function importPackageJson(fileAbsPath) {
   };
   return pkg;
 }
-const a = 2
+
+// src/common/withDefault.ts
+function withDefault(value, defaultValue) {
+  if (defaultValue !== null && !(defaultValue instanceof Array) && typeof defaultValue === "object") {
+    let obj = {};
+    Object.keys(defaultValue).forEach((key) => {
+      obj[key] = withDefault(value?.[key], defaultValue[key]);
+    });
+    return obj;
+  } else {
+    return value ?? defaultValue;
+  }
+}
 export {
   Pipe,
   default3 as chalk,
@@ -50,5 +62,5 @@ export {
   importModule,
   importPackageJson,
   packageJsonDefault,
-  a
+  withDefault
 };

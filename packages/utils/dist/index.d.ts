@@ -63,4 +63,6 @@ declare const packageJsonDefault: () => {
  */
 declare function importPackageJson(fileAbsPath: string): Promise<PackageJsonObject>;
 
-export { PackageJsonObject, Pipe, importModule, importPackageJson, packageJsonDefault };
+declare function withDefault<T>(value: Partial<T>, defaultValue: T): T;
+
+export { PackageJsonObject, Pipe, importModule, importPackageJson, packageJsonDefault, withDefault };

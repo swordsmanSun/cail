@@ -1,12 +1,19 @@
 {
-  "name": "@tracer/bundler",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "name": "@tracer/bundler",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@tracer/node": "workspace:^",
+        "@tracer/utils": "workspace:^",
+        "@vitejs/plugin-vue": "^4.3.3",
+        "vite": "^4.4.9"
+    }
 }
