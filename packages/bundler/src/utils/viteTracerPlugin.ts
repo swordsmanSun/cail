@@ -1,4 +1,5 @@
 import { App } from "@tracer/node";
+import { readFileSync } from "fs";
 import { Plugin } from "vite";
 
 export function vitePluginTracer(props: { app: App, isBuild?: boolean }): Plugin {
@@ -6,6 +7,9 @@ export function vitePluginTracer(props: { app: App, isBuild?: boolean }): Plugin
     return {
         name: "vite-plugin-tracer",
         async config() {
+            // write index.html as a entry point
+            app.writeTemp("../index.html", readFileSync(app.server.template).toString())
+
             return {
                 root: app.path.root(),
                 base: app.base,
@@ -14,8 +18,15 @@ export function vitePluginTracer(props: { app: App, isBuild?: boolean }): Plugin
                 cacheDir: app.path.cache(),
                 resolve: {
                     alias: resolveAlias(app.path),
+                },
+                server: {
+                    host: app.server.host,
+                    port: app.server.port,
+                    open: app.server.open
+                },
+                build: {
+                    outDir: app.path.out()
                 }
-                // TODO 
             }
         }
     }

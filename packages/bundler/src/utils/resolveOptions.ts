@@ -4,17 +4,17 @@ import { BundlerConfigs } from "../../types/options";
 import { InlineConfig, mergeConfig } from 'vite'
 import { vitePluginTracer } from './viteTracerPlugin';
 
-export function resolveViteOptions(props: { app: App, bundlerConfigs: BundlerConfigs, isBuild?: boolean }): InlineConfig {
+export function resolveViteOptions(props: { app: App, bundlerConfigs?: BundlerConfigs, isBuild?: boolean }): InlineConfig {
     const { app, bundlerConfigs, isBuild } = props
 
     return mergeConfig(
         {
             configFile: false,
             plugins: [
-                vuePlugin(bundlerConfigs.vuePlugin),
+                vuePlugin(bundlerConfigs?.vuePlugin),
                 vitePluginTracer({ app, isBuild })
             ]
         },
-        bundlerConfigs.vite
+        bundlerConfigs?.vite
     )
 }

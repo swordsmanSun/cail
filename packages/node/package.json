@@ -19,6 +19,7 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
+        "@tracer/bundler": "workspace:^",
         "@tracer/client": "workspace:^",
         "@tracer/utils": "workspace:^",
         "esbuild": "^0.19.2",

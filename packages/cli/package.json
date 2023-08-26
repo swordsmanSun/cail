@@ -18,9 +18,11 @@
         "@types/node": "^20.5.0"
     },
     "dependencies": {
+        "@tracer/bundler": "workspace:^",
         "@tracer/node": "workspace:^",
         "@tracer/plugin-output": "workspace:^",
         "@tracer/utils": "workspace:^",
+        "chokidar": "^3.5.3",
         "commander": "^11.0.0"
     },
     "exports": {

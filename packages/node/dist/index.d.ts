@@ -1,3 +1,4 @@
+import { Bundler } from '@tracer/bundler';
 import { PackageJsonObject } from '@tracer/utils';
 
 type Hooks = {
@@ -44,11 +45,13 @@ type APPBase = {
     path: PathOptions;
     server: ServerOptions;
     build: BuildOptions;
+    bundler: Bundler;
 };
 type AppMethods = {
     use: (plugin: PluginFunction) => void;
     init: () => void;
     write: () => void;
+    analyze: () => Promise<void>;
 };
 type AppUtils = {
     writeTemp: WriteTemp;
@@ -83,6 +86,7 @@ interface ProjectConfig {
      * The path of the project
      */
     path: string;
+    package?: string;
     /**
      * The sub project
      */
@@ -111,6 +115,7 @@ declare interface Config extends SiteDataConfig {
     dir?: DirConfig;
     server?: ServerConfig;
     build?: buildConfig;
+    bundler?: Bundler;
 }
 
 declare function defineConfig(config: Config): Config;
@@ -189,7 +194,8 @@ declare function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string):
     public: (...relativePaths: string[]) => string;
 };
 declare function resolveProjectOptions(projectsConfigs?: ProjectConfig[], projectDir?: string): Promise<ProjectOptions[]>;
-declare function resolveServerOptions(serverConfig?: ServerConfig): ServerConfig;
-declare function resolveBuildOptions(buildConfig?: buildConfig): buildConfig;
+declare function resolveServerOptions(serverConfigs?: ServerConfig): ServerConfig;
+declare function resolveBuildOptions(buildConfigs?: buildConfig): buildConfig;
+declare function resolveBundlerOptions(bundlerConfigs?: Bundler): Bundler;
 
-export { APPBase, App, AppMethods, AppUtils, BuildOptions, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, WriteTemp, createApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, pnpmAnalyzer, resolveBuildOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };
+export { APPBase, App, AppMethods, AppUtils, BuildOptions, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, WriteTemp, createApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, pnpmAnalyzer, resolveBuildOptions, resolveBundlerOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };

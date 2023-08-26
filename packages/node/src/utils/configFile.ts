@@ -2,7 +2,7 @@ import { existsSync, unlinkSync } from "fs"
 import { dirname, join } from "path"
 import { Config } from "../../types/config"
 import { cwd } from "process"
-import { pathToFileURL } from "url"
+import { importModule } from "@tracer/utils"
 
 /**
  * @param dirname current file execution directory
@@ -29,24 +29,17 @@ export async function importConfigFile(filePath: string) {
         entryPoints: [filePath],
         outfile: "tracer.config.temp.js",
         platform: "node",
-        bundle: true,
+        // bundle: true,
         format: "esm",
-        external: ["esbuild"]
+        // external: ["esbuild", "@tracer/node"],
     })
     // import file
     const tempFilePath = join(_cwd, "tracer.config.temp.js")
-    let module: { default: Config }
-    try {
-        // user environment
-        module = await import(pathToFileURL(tempFilePath).href)
-    } catch (error) {
-        // testing environment
-        module = await import(tempFilePath)
-    }
+    let module = await importModule<{ default: Config }>(tempFilePath)
     // remove file 
     unlinkSync(tempFilePath)
 
-    return module as { default: Config }
+    return module
 }
 /**
  * @param dirname current file execution directory
@@ -61,10 +54,10 @@ export async function loadConfigModule(dirname: string) {
  * @param dirname current file execution directory
  * @returns  the out default export object of the config file
  */
-export async function loadConfigObject(dirname: string){
+export async function loadConfigObject(dirname: string) {
     const module = await loadConfigModule(dirname)
 
-    if (!module.default){
+    if (!module.default) {
         throw new Error("config file has no default export object")
     }
 

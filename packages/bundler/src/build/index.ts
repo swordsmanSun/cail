@@ -7,12 +7,12 @@ import { build as viteBuild } from "vite";
 
 const log = debug("@tracer/bundler:build")
 
-export async function build(bundlerConfigs: BundlerConfigs, app: App): ReturnType<Bundler["build"]> {
+export async function build(bundlerConfigs: BundlerConfigs | undefined, app: App): ReturnType<Bundler["build"]> {
     log("compiling app...")
 
     const viteOptions = resolveViteOptions({ app, bundlerConfigs, isBuild: true })
 
-    const viteOutput = await viteBuild(viteOptions)
+    // const viteOutput = await viteBuild(viteOptions)
 
     log("compile app done")
 }

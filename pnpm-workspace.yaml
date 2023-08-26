@@ -1,2 +1,4 @@
 packages:
     - "packages/**/*"
+    # 排除__tests__
+    - "!packages/**/__tests__/**/*"

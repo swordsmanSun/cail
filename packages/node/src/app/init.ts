@@ -10,31 +10,14 @@ const log = debug("@tracer/node:app")
  */
 export async function initApp(app: App) {
     log("initializing app...")
-    const { use, plugins, projects } = app
+    const { use, plugins, projects, analyze } = app
 
     // call the plugin function
     plugins.forEach(plugin => use(plugin))
 
     // analyze the dependencies of each project
-    const depthTraverse = async (project: ProjectOptions, depth: number) => {
-        if (!project) return
-        const { children = [], type, path } = project
+    await analyze()
 
-        const analyzer = getAnalyzerByName(type)
-        // set dependency tree data
-        // TODO  visitors are needed to visit each node
-        project.dependencyTree = await analyzer(path, (node) => runHook("analyzing", node, depth))
-
-        runHook("analyzed", project)
-
-        for (const child of children) {
-            await depthTraverse(child, depth + 1)
-        }
-    }
-    for (const project of projects) {
-        await depthTraverse(project, 0)
-    }
-    
     runHook("initialized", projects)
 
     log("initialize app done")

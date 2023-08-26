@@ -7,7 +7,7 @@ describe("resolveViteOptions", async () => {
 
     test("default params", () => {
 
-        expect(resolveViteOptions({ app, bundlerConfigs: {}, isBuild: true })).toMatchObject({
+        expect(resolveViteOptions({ app, bundlerConfigs: undefined, isBuild: true })).toMatchObject({
             plugins: [
                 { name: 'vite:vue' },
                 { name: 'vite-plugin-tracer' }

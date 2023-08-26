@@ -65,4 +65,14 @@ declare function importPackageJson(fileAbsPath: string): Promise<PackageJsonObje
 
 declare function withDefault<T>(value: Partial<T>, defaultValue: T): T;
 
-export { PackageJsonObject, Pipe, importModule, importPackageJson, packageJsonDefault, withDefault };
+declare function DFS<T>(tree: T | T[], callbackFn: (node: T) => any, props?: {
+    children?: string;
+}): void;
+declare function BFS<T>(tree: T | T[], callbackFn: (node: T) => any, props?: {
+    children?: string;
+}): void;
+declare function DFSReduce<T, R, I = undefined>(tree: T | T[], callbackFn: (previousValue: I extends undefined ? Record<any, any> : I, currentValue: T) => R, initialValue?: I, props?: {
+    children?: string;
+}): I extends undefined ? R : I;
+
+export { BFS, DFS, DFSReduce, PackageJsonObject, Pipe, importModule, importPackageJson, packageJsonDefault, withDefault };

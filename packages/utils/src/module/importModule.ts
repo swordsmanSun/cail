@@ -7,13 +7,12 @@ import { PackageJsonObject } from "../../types"
 export async function importModule<M>(fileAbsPath: string) {
     let module: M
     try {
-        // user environment
-        module = await import(pathToFileURL(fileAbsPath).href)
-    } catch (error) {
         // testing environment
         module = await import(fileAbsPath)
+    } catch (error) {
+        // user environment
+        module = await import(pathToFileURL(fileAbsPath).href)
     }
-
     return module
 }
 /**

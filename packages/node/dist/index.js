@@ -7,7 +7,7 @@ function defineConfig(config) {
 import { existsSync, unlinkSync } from "fs";
 import { dirname, join } from "path";
 import { cwd } from "process";
-import { pathToFileURL } from "url";
+import { importModule } from "@tracer/utils";
 function getConfigFilePath(dirname2 = cwd()) {
   const extensions = ["ts", "js", "mjs"];
   const configFileName = "tracer.config";
@@ -22,17 +22,12 @@ async function importConfigFile(filePath) {
     entryPoints: [filePath],
     outfile: "tracer.config.temp.js",
     platform: "node",
-    bundle: true,
-    format: "esm",
-    external: ["esbuild"]
+    // bundle: true,
+    format: "esm"
+    // external: ["esbuild", "@tracer/node"],
   });
   const tempFilePath = join(_cwd, "tracer.config.temp.js");
-  let module;
-  try {
-    module = await import(pathToFileURL(tempFilePath).href);
-  } catch (error) {
-    module = await import(tempFilePath);
-  }
+  let module = await importModule(tempFilePath);
   unlinkSync(tempFilePath);
   return module;
 }
@@ -95,6 +90,7 @@ function NodeAnalyzer(analyzer) {
 import { importPackageJson as importPackageJson4, withDefault } from "@tracer/utils";
 import { join as join3 } from "path";
 import { cwd as cwd2 } from "process";
+import { bundler } from "@tracer/bundler";
 function resolvePathOptions(dirConfig, projectDir) {
   const PathJoin = (basePath) => (...relativePaths) => join3(basePath, ...relativePaths);
   return {
@@ -113,7 +109,8 @@ async function resolveProjectOptions(projectsConfigs, projectDir) {
     projectsConfigs.push({
       name: packageJsonObject.name,
       path: projectDir || cwd2(),
-      type: "npm"
+      type: "npm",
+      package: "package.json"
     });
   }
   const recursionTree = async (node, parentChildren) => {
@@ -125,7 +122,8 @@ async function resolveProjectOptions(projectsConfigs, projectDir) {
       type: node.type || "npm",
       packageModule: await importPackageJson4(join3(node.path, "./package.json")),
       children: [],
-      dependencyTree: null
+      dependencyTree: null,
+      package: node.package || "package.json"
     });
     for (let index = 0; index < node.children?.length; index++) {
       const child = node.children[index];
@@ -137,54 +135,25 @@ async function resolveProjectOptions(projectsConfigs, projectDir) {
   }
   return projectOptionsList;
 }
-function resolveServerOptions(serverConfig) {
-  return withDefault(serverConfig, {
+function resolveServerOptions(serverConfigs) {
+  return withDefault(serverConfigs, {
     port: 3001,
     host: "127.0.0.1",
     open: true,
     template: "@tracer/client/templates/dev.html"
   });
 }
-function resolveBuildOptions(buildConfig) {
-  return withDefault(buildConfig, {
+function resolveBuildOptions(buildConfigs) {
+  return withDefault(buildConfigs, {
     template: "@tracer/client/templates/build.html"
   });
 }
+function resolveBundlerOptions(bundlerConfigs) {
+  return withDefault(bundlerConfigs, bundler());
+}
 
 // src/app/createOptions.ts
-import { outputFileSync } from "fs-extra";
-function CreateWriteTemp(path) {
-  return (relativeFilePath, content) => {
-    const absoluteFilePath = path.temp(relativeFilePath);
-    outputFileSync(absoluteFilePath, content);
-    return absoluteFilePath;
-  };
-}
-
-// src/app/plugin.ts
-import { chalk, debug } from "@tracer/utils";
-var log = debug("@tracer/node:app");
-var pluginsObject = /* @__PURE__ */ new WeakMap();
-var activePluginFunction;
-function CreateUsePluginFunction(app) {
-  const usePluginFn = (plugin) => {
-    activePluginFunction = plugin;
-    plugin(app);
-    const pluginObject = getPluginObject(plugin);
-    if (!pluginObject?.name) {
-      throw new Error("plugin must have a name");
-    }
-    log(`use plugin ${chalk.blue(pluginObject.name)}`);
-    return app;
-  };
-  return usePluginFn;
-}
-function getPluginObject(pluginFunction) {
-  return pluginsObject.get(pluginFunction);
-}
-
-// src/app/init.ts
-import { debug as debug2 } from "@tracer/utils";
+import { outputFileSync } from "fs-extra/esm";
 
 // src/app/hook.ts
 var hooks = {
@@ -219,26 +188,63 @@ function onInitialized(fn) {
   hooks.initialized.push(fn);
 }
 
+// src/app/createOptions.ts
+function CreateWriteTemp(path) {
+  return (relativeFilePath, content) => {
+    const absoluteFilePath = path.temp(relativeFilePath);
+    outputFileSync(absoluteFilePath, content);
+    return absoluteFilePath;
+  };
+}
+function CreateAnalyze(projects) {
+  return async () => {
+    const depthTraverse = async (project, depth) => {
+      if (!project)
+        return;
+      const { children = [], type, path } = project;
+      const analyzer = getAnalyzerByName(type);
+      project.dependencyTree = await analyzer(path, (node) => runHook("analyzing", node, depth));
+      runHook("analyzed", project);
+      for (const child of children) {
+        await depthTraverse(child, depth + 1);
+      }
+    };
+    for (const project of projects) {
+      await depthTraverse(project, 0);
+    }
+  };
+}
+
+// src/app/plugin.ts
+import { chalk, debug } from "@tracer/utils";
+var log = debug("@tracer/node:app");
+var pluginsObject = /* @__PURE__ */ new WeakMap();
+var activePluginFunction;
+function CreateUsePluginFunction(app) {
+  const usePluginFn = (plugin) => {
+    activePluginFunction = plugin;
+    plugin(app);
+    const pluginObject = getPluginObject(plugin);
+    if (!pluginObject?.name) {
+      throw new Error("plugin must have a name");
+    }
+    log(`use plugin ${chalk.blue(pluginObject.name)}`);
+    return app;
+  };
+  return usePluginFn;
+}
+function getPluginObject(pluginFunction) {
+  return pluginsObject.get(pluginFunction);
+}
+
 // src/app/init.ts
+import { debug as debug2 } from "@tracer/utils";
 var log2 = debug2("@tracer/node:app");
 async function initApp(app) {
   log2("initializing app...");
   const { use, plugins, projects } = app;
   plugins.forEach((plugin) => use(plugin));
-  const depthTraverse = async (project, depth) => {
-    if (!project)
-      return;
-    const { children = [], type, path } = project;
-    const analyzer = getAnalyzerByName(type);
-    project.dependencyTree = await analyzer(path, (node) => runHook("analyzing", node, depth));
-    runHook("analyzed", project);
-    for (const child of children) {
-      await depthTraverse(child, depth + 1);
-    }
-  };
-  for (const project of projects) {
-    await depthTraverse(project, 0);
-  }
+  await app.analyze();
   runHook("initialized", projects);
   log2("initialize app done");
 }
@@ -272,6 +278,7 @@ async function createApp(config) {
   const base = config.base ?? "/";
   const server = resolveServerOptions(config.server);
   const build = resolveBuildOptions(config.build);
+  const bundler2 = resolveBundlerOptions(config.bundler);
   const writeTemp = CreateWriteTemp(path);
   let app = {
     base,
@@ -280,10 +287,12 @@ async function createApp(config) {
     path,
     server,
     build,
+    bundler: bundler2,
     // utils
     writeTemp
   };
   app.use = CreateUsePluginFunction(app);
+  app.analyze = CreateAnalyze(app.projects);
   app.init = CreateInitAppFunction(app);
   app.write = CreateWriteFunction(app);
   return app;
@@ -305,6 +314,7 @@ export {
   onWatching,
   pnpmAnalyzer,
   resolveBuildOptions,
+  resolveBundlerOptions,
   resolvePathOptions,
   resolveProjectOptions,
   resolveServerOptions,

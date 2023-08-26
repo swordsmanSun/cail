@@ -2,7 +2,8 @@ import { importPackageJson, withDefault } from "@tracer/utils";
 import { join } from "path";
 import { cwd } from "process";
 import { DirConfig, ProjectConfig, ServerConfig, buildConfig } from "../../types/config";
-import { PathOptions, ProjectOptions } from "../../types";
+import { ProjectOptions } from "../../types";
+import { Bundler, bundler } from "@tracer/bundler";
 // process user config
 export function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string) {
     // assign default value
@@ -25,7 +26,8 @@ export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], p
         projectsConfigs.push({
             name: packageJsonObject.name,
             path: projectDir || cwd(),
-            type: "npm"
+            type: "npm",
+            package: "package.json"
         })
     }
     // resolve options
@@ -38,7 +40,8 @@ export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], p
             type: node.type || "npm",
             packageModule: await importPackageJson(join(node.path, "./package.json")),
             children: [],
-            dependencyTree: null
+            dependencyTree: null,
+            package: node.package || "package.json",
         })
 
         for (let index = 0; index < node.children?.length; index++) {
@@ -53,16 +56,20 @@ export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], p
 
     return projectOptionsList
 }
-export function resolveServerOptions(serverConfig?: ServerConfig) {
-    return withDefault<ServerConfig>(serverConfig, {
+export function resolveServerOptions(serverConfigs?: ServerConfig) {
+    return withDefault<ServerConfig>(serverConfigs, {
         port: 3001,
         host: "127.0.0.1",
         open: true,
         template: "@tracer/client/templates/dev.html"
     })
 }
-export function resolveBuildOptions(buildConfig?: buildConfig) {
-    return withDefault<buildConfig>(buildConfig, {
+export function resolveBuildOptions(buildConfigs?: buildConfig) {
+    return withDefault<buildConfig>(buildConfigs, {
         template: "@tracer/client/templates/build.html"
     })
+}
+
+export function resolveBundlerOptions(bundlerConfigs?: Bundler) {
+    return withDefault(bundlerConfigs, bundler())
 }

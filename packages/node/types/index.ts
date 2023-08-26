@@ -1,6 +1,7 @@
 import { PackageJsonObject } from "@tracer/utils"
 import { ProjectConfig, DirConfig, ServerConfig, buildConfig } from "./config"
 import { DepTree } from "./dependency"
+import { Bundler } from "@tracer/bundler"
 
 export type ProjectOptions = Omit<Required<ProjectConfig>, "children"> & {
     /**
@@ -23,11 +24,13 @@ export type APPBase = {
     path: PathOptions
     server: ServerOptions
     build: BuildOptions
+    bundler: Bundler
 }
 export type AppMethods = {
     use: (plugin: PluginFunction) => void
     init: () => void
     write: () => void
+    analyze: () => Promise<void>
 }
 export type AppUtils = {
     writeTemp: WriteTemp

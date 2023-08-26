@@ -15,7 +15,8 @@ describe('resolveProjectOptions', () => {
                 path: "D:\\07_project\\19_字节青训营\\01_tracer\\packages\\node\\__test__\\app",
                 packageModule: await importPackageJson(join(__dirname, "package.json")),
                 children: [],
-                dependencyTree: null
+                dependencyTree: null,
+                package: "package.json"
             }
         ])
     })
@@ -30,6 +31,7 @@ describe('resolveProjectOptions', () => {
                 type: "pnpm",
                 path: __dirname,
                 packageModule: await importPackageJson(join(__dirname, "package.json")),
+                package: "package.json",
                 children: [],
                 dependencyTree: null
             }
@@ -41,6 +43,7 @@ describe('resolveProjectOptions', () => {
             name: "app222",
             type: "pnpm",
             path: __dirname,
+            package: "package.json",
             children: [
                 {
                     path: __dirname,
@@ -53,13 +56,15 @@ describe('resolveProjectOptions', () => {
                 path: __dirname,
                 packageModule: await importPackageJson(join(__dirname, "package.json")),
                 dependencyTree: null,
+                package: "package.json",
                 children: [{
                     name: "app",
                     type: "npm",
                     path: __dirname,
                     packageModule: await importPackageJson(join(__dirname, "package.json")),
                     children: [],
-                    dependencyTree: null
+                    dependencyTree: null,
+                    package: "package.json"
                 }],
             }
         ])

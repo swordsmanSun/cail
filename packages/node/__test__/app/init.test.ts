@@ -6,12 +6,13 @@ import { CreateUsePluginFunction, defineOptions } from "../../src/app/plugin";
 import { onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching } from "../../src/app/hook";
 import { importPackageJson } from "@tracer/utils";
 import { join } from "path";
+import { CreateAnalyze } from "../../src/app/createOptions";
 
 describe("init", async () => {
     let projects: any
     let project: any
     const fn = vi.fn()
-    await initApp({
+    const app = {
         plugins: [() => {
             defineOptions({
                 name: "xxx"
@@ -26,14 +27,17 @@ describe("init", async () => {
         }],
         projects: await resolveProjectOptions([], __dirname),
         use: CreateUsePluginFunction(1 as any)
-    } as unknown as App)
+    } as unknown as App
+    app.analyze = CreateAnalyze(app.projects)
+    await initApp(app)
     const correctProject = {
         name: "app",
         type: "npm",
         path: "D:\\07_project\\19_字节青训营\\01_tracer\\packages\\node\\__test__\\app",
         packageModule: await importPackageJson(join(__dirname, "package.json")),
         children: [],
-        dependencyTree: 1
+        dependencyTree: 1,
+        package: "package.json"
     }
     test("the correct times of calls", () => expect(fn).toBeCalledTimes(2))
     test("the correct params of onInitialized function", () => {

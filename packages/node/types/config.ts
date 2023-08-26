@@ -1,3 +1,4 @@
+import { Bundler } from "@tracer/bundler"
 import { PluginFunction } from "."
 
 export interface SiteDataConfig {
@@ -23,6 +24,10 @@ export interface ProjectConfig {
      * The path of the project
      */
     path: string,
+    /* 
+    * the project info file
+    */
+    package?: string
     /**
      * The sub project
      */
@@ -52,5 +57,6 @@ export declare interface Config extends SiteDataConfig {
     plugins?: PluginFunction[],
     dir?: DirConfig,
     server?: ServerConfig,
-    build?: buildConfig
+    build?: buildConfig,
+    bundler?: Bundler
 }
