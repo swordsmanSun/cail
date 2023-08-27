@@ -1,14 +1,14 @@
 import { Config } from "../../types/config";
 import { resolveProjectOptions, resolvePathOptions, resolveServerOptions, resolveBuildOptions, resolveBundlerOptions } from "./resolveOptions"
 import { CreateAnalyze, CreateWriteTemp } from "./createOptions"
-import { App } from "../../types";
+import { App } from "../../types/options";
 import { CreateUsePluginFunction } from "./plugin";
 import { CreateInitAppFunction } from "./init";
 import { CreateWriteFunction } from "./write";
 
-export async function createApp(config: Config, projectDir?: string) {
+export function createApp(config: Config, projectDir?: string) {
     // app base data
-    const projects = await resolveProjectOptions(config.projects, projectDir)
+    const projects = resolveProjectOptions(config.projects, projectDir)
     const path = resolvePathOptions(config.dir, projectDir)
     const plugins = config.plugins
     const base = config.base ?? "/"

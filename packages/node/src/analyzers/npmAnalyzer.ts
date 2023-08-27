@@ -5,8 +5,8 @@ import { DepTree } from "../../types/dependency"
  * @param modulesDir Dependencies directory
  * @returns 
  */
-export async function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promise<DepTree> {
-    const module = await importPackageJson(pkgJSONAbsPath)
+export function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree {
+    const module = importPackageJson(pkgJSONAbsPath)
     // TODO the codes
     return 1 as unknown as DepTree
 }

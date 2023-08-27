@@ -10,6 +10,12 @@
     "author": "",
     "license": "ISC",
     "exports": {
-        "./templates/": "./templates/"
+        "./templates/": "./templates/",
+        "./app": "./src/index.ts"
+    },
+    "dependencies": {
+        "@tracer/node": "workspace:^",
+        "vue": "^3.3.4",
+        "vue-router": "^4.2.4"
     }
 }

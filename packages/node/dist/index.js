@@ -46,22 +46,22 @@ async function loadConfigObject(dirname2) {
 
 // src/analyzers/npmAnalyzer.ts
 import { importPackageJson } from "@tracer/utils";
-async function npmAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = await importPackageJson(pkgJSONAbsPath);
+function npmAnalyzer(pkgJSONAbsPath, modulesDir) {
+  const module = importPackageJson(pkgJSONAbsPath);
   return 1;
 }
 
 // src/analyzers/pnpmAnalyzer.ts
 import { importPackageJson as importPackageJson2 } from "@tracer/utils";
-async function pnpmAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = await importPackageJson2(pkgJSONAbsPath);
+function pnpmAnalyzer(pkgJSONAbsPath, modulesDir) {
+  const module = importPackageJson2(pkgJSONAbsPath);
   return 1;
 }
 
 // src/analyzers/yarnAnalyzer.ts
 import { importPackageJson as importPackageJson3 } from "@tracer/utils";
-async function yarnAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = await importPackageJson3(pkgJSONAbsPath);
+function yarnAnalyzer(pkgJSONAbsPath, modulesDir) {
+  const module = importPackageJson3(pkgJSONAbsPath);
   return 1;
 }
 
@@ -88,50 +88,51 @@ function NodeAnalyzer(analyzer) {
 
 // src/app/resolveOptions.ts
 import { importPackageJson as importPackageJson4, withDefault } from "@tracer/utils";
-import { join as join3 } from "path";
+import { join as join3, normalize, sep } from "path";
 import { cwd as cwd2 } from "process";
 import { bundler } from "@tracer/bundler";
 function resolvePathOptions(dirConfig, projectDir) {
   const PathJoin = (basePath) => (...relativePaths) => join3(basePath, ...relativePaths);
   return {
-    root: PathJoin(join3(dirConfig?.root ?? projectDir ?? cwd2(), "./analysis/")),
-    temp: PathJoin(join3(dirConfig?.temp ?? projectDir ?? cwd2(), "./analysis/.temp/")),
-    out: PathJoin(join3(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/dist/")),
-    cache: PathJoin(join3(dirConfig?.cache ?? projectDir ?? cwd2(), "./analysis/.cache/")),
-    public: PathJoin(join3(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/public/"))
+    root: PathJoin(join3(dirConfig?.root ?? projectDir ?? cwd2(), "./analysis")),
+    temp: PathJoin(join3(dirConfig?.temp ?? projectDir ?? cwd2(), "./analysis/.temp")),
+    out: PathJoin(join3(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/dist")),
+    cache: PathJoin(join3(dirConfig?.cache ?? projectDir ?? cwd2(), "./analysis/.cache")),
+    public: PathJoin(join3(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/public"))
   };
 }
-async function resolveProjectOptions(projectsConfigs, projectDir) {
+function resolveProjectOptions(projectsConfigs, projectDir) {
   let projectOptionsList = [];
   if (!projectsConfigs?.length) {
     projectsConfigs = [];
-    const packageJsonObject = await importPackageJson4(join3(projectDir || cwd2(), "./package.json"));
+    const packageJsonObject = importPackageJson4(join3(projectDir || cwd2(), "./package.json"));
     projectsConfigs.push({
       name: packageJsonObject.name,
-      path: projectDir || cwd2(),
+      path: projectDir || cwd2() && normalize(projectDir || cwd2()).split(sep).join("/"),
       type: "npm",
       package: "package.json"
     });
   }
-  const recursionTree = async (node, parentChildren) => {
+  const recursionTree = (node, parentChildren) => {
     if (!node)
       return;
     parentChildren.push({
       ...node,
-      name: node.name || (await importPackageJson4(join3(node.path, "./package.json"))).name,
+      path: node.path && normalize(node.path).split(sep).join("/"),
+      name: node.name || importPackageJson4(join3(node.path, "./package.json")).name,
       type: node.type || "npm",
-      packageModule: await importPackageJson4(join3(node.path, "./package.json")),
+      packageModule: importPackageJson4(join3(node.path, "./package.json")),
       children: [],
       dependencyTree: null,
       package: node.package || "package.json"
     });
     for (let index = 0; index < node.children?.length; index++) {
       const child = node.children[index];
-      await recursionTree(child, parentChildren[index].children);
+      recursionTree(child, parentChildren[index].children);
     }
   };
   for (const projectsConfig of projectsConfigs) {
-    await recursionTree(projectsConfig, projectOptionsList);
+    recursionTree(projectsConfig, projectOptionsList);
   }
   return projectOptionsList;
 }
@@ -140,12 +141,12 @@ function resolveServerOptions(serverConfigs) {
     port: 3001,
     host: "127.0.0.1",
     open: true,
-    template: "@tracer/client/templates/dev.html"
+    template: join3(cwd2(), "node_modules", "@tracer/client/templates/dev.html")
   });
 }
 function resolveBuildOptions(buildConfigs) {
   return withDefault(buildConfigs, {
-    template: "@tracer/client/templates/build.html"
+    template: join3(cwd2(), "node_modules", "@tracer/client/templates/build.html")
   });
 }
 function resolveBundlerOptions(bundlerConfigs) {
@@ -220,6 +221,9 @@ import { chalk, debug } from "@tracer/utils";
 var log = debug("@tracer/node:app");
 var pluginsObject = /* @__PURE__ */ new WeakMap();
 var activePluginFunction;
+function getActivePlugin() {
+  return activePluginFunction;
+}
 function CreateUsePluginFunction(app) {
   const usePluginFn = (plugin) => {
     activePluginFunction = plugin;
@@ -233,6 +237,20 @@ function CreateUsePluginFunction(app) {
   };
   return usePluginFn;
 }
+function defineOptions(pluginObject) {
+  if (!activePluginFunction) {
+    throw new Error("defineOptions must be called inside the plugin function");
+  }
+  let _pluginObject = pluginsObject.get(activePluginFunction);
+  if (!_pluginObject) {
+    const temp = { ...pluginObject };
+    pluginsObject.set(getActivePlugin(), temp);
+    _pluginObject = temp;
+  }
+  Object.keys(pluginObject).forEach((key) => {
+    _pluginObject[key] = pluginObject[key];
+  });
+}
 function getPluginObject(pluginFunction) {
   return pluginsObject.get(pluginFunction);
 }
@@ -242,9 +260,9 @@ import { debug as debug2 } from "@tracer/utils";
 var log2 = debug2("@tracer/node:app");
 async function initApp(app) {
   log2("initializing app...");
-  const { use, plugins, projects } = app;
+  const { use, plugins, projects, analyze } = app;
   plugins.forEach((plugin) => use(plugin));
-  await app.analyze();
+  await analyze();
   runHook("initialized", projects);
   log2("initialize app done");
 }
@@ -271,9 +289,9 @@ function writeAnalysis(app) {
 }
 
 // src/app/createApp.ts
-async function createApp(config) {
-  const projects = await resolveProjectOptions(config.projects);
-  const path = resolvePathOptions(config.dir);
+function createApp(config, projectDir) {
+  const projects = resolveProjectOptions(config.projects, projectDir);
+  const path = resolvePathOptions(config.dir, projectDir);
   const plugins = config.plugins;
   const base = config.base ?? "/";
   const server = resolveServerOptions(config.server);
@@ -298,10 +316,14 @@ async function createApp(config) {
   return app;
 }
 export {
+  CreateUsePluginFunction,
   createApp,
   defineConfig,
+  defineOptions,
+  getActivePlugin,
   getAnalyzerByName,
   getConfigFilePath,
+  getPluginObject,
   importConfigFile,
   loadConfigModule,
   loadConfigObject,

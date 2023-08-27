@@ -38,6 +38,7 @@ interface PackageJsonObject {
  * @returns the out module of the config file
  */
 declare function importModule<M>(fileAbsPath: string): Promise<M>;
+declare function importJson(fileAbsPath: string): any;
 /**
  * @returns the default values of package.json
  */
@@ -61,7 +62,7 @@ declare const packageJsonDefault: () => {
  * @param fileAbsPath the absolute path of package.json
  * @returns the out object of the package.json with default values
  */
-declare function importPackageJson(fileAbsPath: string): Promise<PackageJsonObject>;
+declare function importPackageJson(fileAbsPath: string): PackageJsonObject;
 
 declare function withDefault<T>(value: Partial<T>, defaultValue: T): T;
 
@@ -75,4 +76,4 @@ declare function DFSReduce<T, R, I = undefined>(tree: T | T[], callbackFn: (prev
     children?: string;
 }): I extends undefined ? R : I;
 
-export { BFS, DFS, DFSReduce, PackageJsonObject, Pipe, importModule, importPackageJson, packageJsonDefault, withDefault };
+export { BFS, DFS, DFSReduce, PackageJsonObject, Pipe, importJson, importModule, importPackageJson, packageJsonDefault, withDefault };

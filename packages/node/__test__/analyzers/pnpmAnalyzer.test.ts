@@ -1,13 +1,14 @@
 import { importPackageJson } from "@tracer/utils";
 import { join } from "path";
 import { expect, test } from "vitest";
-import { DepTree, npmAnalyzer } from "../../src";
+import { DepTree } from "../../types/dependency";
+import { pnpmAnalyzer } from "../../src";
 
-test("pnpmAnalyzer", async () => {
-    const reactPackageObject = await importPackageJson(join(__dirname, "./pnpmProject/node_modules/react/package.json"))
-    const looseEnvifyPackageObject = await importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/loose-envify/package.json"))
-    const jsTokensPackageObject = await importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/js-tokens/package.json"))
-    
+test("pnpmAnalyzer", () => {
+    const reactPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/react/package.json"))
+    const looseEnvifyPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/loose-envify/package.json"))
+    const jsTokensPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/js-tokens/package.json"))
+
     const depthTree: DepTree = [
         {
             packageModule: reactPackageObject,
@@ -17,7 +18,12 @@ test("pnpmAnalyzer", async () => {
                     children: [
                         {
                             packageModule: jsTokensPackageObject
-                        }
+                        },
+                        // {
+                        //     packageModule: reactPackageObject,
+                        //     children: [],
+                        //     isCircular: true
+                        // }
                     ]
                 }
             ]
@@ -32,7 +38,7 @@ test("pnpmAnalyzer", async () => {
     })
 
     // expect(
-    //     await npmAnalyzer(
+    //     pnpmAnalyzer(
     //         join(__dirname, "./pnpmProject/package.json"),
     //         join(__dirname, "./pnpmProject/node_modules")
     //     )

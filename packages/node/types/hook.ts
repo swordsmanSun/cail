@@ -1,4 +1,4 @@
-import { ProjectOptions } from "."
+import { ProjectOptions } from "./options"
 import { DepNode } from "./dependency"
 
 export type Hooks = {

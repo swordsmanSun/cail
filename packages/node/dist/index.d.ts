@@ -150,25 +150,25 @@ declare function loadConfigObject(dirname: string): Promise<Config>;
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promise<DepTree>;
+declare function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promise<DepTree>;
+declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): Promise<DepTree>;
+declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree;
 
-declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => (projectPath: string, visitor: Visitor) => Promise<DepTree>;
+declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => (projectPath: string, visitor: Visitor) => DepTree;
 
-declare function createApp(config: Config): Promise<App>;
+declare function createApp(config: Config, projectDir?: string): App;
 
 declare const hooks: {
     analyzing: ((depNode: DepNode, depth: number) => void)[];
@@ -193,9 +193,23 @@ declare function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string):
     cache: (...relativePaths: string[]) => string;
     public: (...relativePaths: string[]) => string;
 };
-declare function resolveProjectOptions(projectsConfigs?: ProjectConfig[], projectDir?: string): Promise<ProjectOptions[]>;
+declare function resolveProjectOptions(projectsConfigs?: ProjectConfig[], projectDir?: string): ProjectOptions[];
 declare function resolveServerOptions(serverConfigs?: ServerConfig): ServerConfig;
 declare function resolveBuildOptions(buildConfigs?: buildConfig): buildConfig;
 declare function resolveBundlerOptions(bundlerConfigs?: Bundler): Bundler;
 
-export { APPBase, App, AppMethods, AppUtils, BuildOptions, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, WriteTemp, createApp, defineConfig, getAnalyzerByName, getConfigFilePath, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, pnpmAnalyzer, resolveBuildOptions, resolveBundlerOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };
+declare function getActivePlugin(): PluginFunction;
+/**
+ * create use plugin method for tracer app
+ * @param app app base data and utils
+ * @returns use plugin method
+ */
+declare function CreateUsePluginFunction(app: Omit<App, keyof AppMethods>): (plugin: PluginFunction) => Omit<App, keyof AppMethods>;
+/**
+ * define the plugin info, the call to this function mus be inside the plugin function
+ * @param pluginObject plugin object
+ */
+declare function defineOptions(pluginObject: PluginObjectUserSide): void;
+declare function getPluginObject(pluginFunction: PluginFunction): PluginObjectUserSide;
+
+export { APPBase, App, AppMethods, AppUtils, BuildOptions, CreateUsePluginFunction, DepNode, DepTree, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, Visitor, WriteTemp, createApp, defineConfig, defineOptions, getActivePlugin, getAnalyzerByName, getConfigFilePath, getPluginObject, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, pnpmAnalyzer, resolveBuildOptions, resolveBundlerOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };

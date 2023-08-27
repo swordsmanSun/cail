@@ -1,4 +1,4 @@
-import { Cast, TupleLast } from "../../../../types/utils.";
+import { Cast, TupleLast } from "../../types/functional";
 
 export function Pipe<Fns extends ((...args: unknown[]) => unknown)[]>(...fns: Fns) {
     return (...args: Parameters<Fns[0]>) =>

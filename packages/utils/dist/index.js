@@ -9,6 +9,7 @@ function Pipe(...fns) {
 
 // src/module/importModule.ts
 import { pathToFileURL } from "url";
+import { readFileSync } from "fs";
 async function importModule(fileAbsPath) {
   let module;
   try {
@@ -17,6 +18,9 @@ async function importModule(fileAbsPath) {
     module = await import(pathToFileURL(fileAbsPath).href);
   }
   return module;
+}
+function importJson(fileAbsPath) {
+  return JSON.parse(readFileSync(fileAbsPath).toString());
 }
 var packageJsonDefault = () => ({
   name: "",
@@ -34,11 +38,11 @@ var packageJsonDefault = () => ({
   bundledDependencies: [],
   keywords: []
 });
-async function importPackageJson(fileAbsPath) {
-  const module = (await importModule(fileAbsPath)).default;
+function importPackageJson(fileAbsPath) {
+  const object = importJson(fileAbsPath);
   const pkg = {
     ...packageJsonDefault(),
-    ...module
+    ...object
   };
   return pkg;
 }
@@ -116,6 +120,7 @@ export {
   Pipe,
   default3 as chalk,
   default2 as debug,
+  importJson,
   importModule,
   importPackageJson,
   packageJsonDefault,

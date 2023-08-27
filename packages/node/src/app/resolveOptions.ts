@@ -1,44 +1,45 @@
 import { importPackageJson, withDefault } from "@tracer/utils";
-import { join } from "path";
+import { join, normalize, sep } from "path";
 import { cwd } from "process";
 import { DirConfig, ProjectConfig, ServerConfig, buildConfig } from "../../types/config";
-import { ProjectOptions } from "../../types";
+import { ProjectOptions } from "../../types/options";
 import { Bundler, bundler } from "@tracer/bundler";
 // process user config
 export function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string) {
     // assign default value
     const PathJoin = (basePath: string) => (...relativePaths: string[]) => join(basePath, ...relativePaths)
     return {
-        root: PathJoin(join(dirConfig?.root ?? projectDir ?? cwd(), "./analysis/")),
-        temp: PathJoin(join(dirConfig?.temp ?? projectDir ?? cwd(), "./analysis/.temp/")),
-        out: PathJoin(join(dirConfig?.out ?? projectDir ?? cwd(), "./analysis/dist/")),
-        cache: PathJoin(join(dirConfig?.cache ?? projectDir ?? cwd(), "./analysis/.cache/")),
-        public: PathJoin(join(dirConfig?.out ?? projectDir ?? cwd(), "./analysis/public/")),
+        root: PathJoin(join(dirConfig?.root ?? projectDir ?? cwd(), "./analysis")),
+        temp: PathJoin(join(dirConfig?.temp ?? projectDir ?? cwd(), "./analysis/.temp")),
+        out: PathJoin(join(dirConfig?.out ?? projectDir ?? cwd(), "./analysis/dist")),
+        cache: PathJoin(join(dirConfig?.cache ?? projectDir ?? cwd(), "./analysis/.cache")),
+        public: PathJoin(join(dirConfig?.out ?? projectDir ?? cwd(), "./analysis/public")),
     }
 }
 
-export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], projectDir?: string) {
+export function resolveProjectOptions(projectsConfigs?: ProjectConfig[], projectDir?: string) {
     let projectOptionsList: ProjectOptions[] = []
     // assign default value
     if (!projectsConfigs?.length) {
         projectsConfigs = []
-        const packageJsonObject = await importPackageJson(join(projectDir || cwd(), "./package.json"))
+        const packageJsonObject = importPackageJson(join(projectDir || cwd(), "./package.json"))
         projectsConfigs.push({
             name: packageJsonObject.name,
-            path: projectDir || cwd(),
+            path: projectDir || cwd() && normalize(projectDir || cwd()).split(sep).join("/"),
             type: "npm",
             package: "package.json"
         })
     }
     // resolve options
-    const recursionTree = async (node: ProjectConfig, parentChildren: ProjectOptions[]) => {
+    const recursionTree = (node: ProjectConfig, parentChildren: ProjectOptions[]) => {
         if (!node) return
 
         parentChildren.push({
             ...node,
-            name: node.name || (await importPackageJson(join(node.path, "./package.json"))).name,
+            path: node.path && normalize(node.path).split(sep).join("/"),
+            name: node.name || importPackageJson(join(node.path, "./package.json")).name,
             type: node.type || "npm",
-            packageModule: await importPackageJson(join(node.path, "./package.json")),
+            packageModule: importPackageJson(join(node.path, "./package.json")),
             children: [],
             dependencyTree: null,
             package: node.package || "package.json",
@@ -46,12 +47,12 @@ export async function resolveProjectOptions(projectsConfigs?: ProjectConfig[], p
 
         for (let index = 0; index < node.children?.length; index++) {
             const child = node.children[index];
-            await recursionTree(child, parentChildren[index].children)
+            recursionTree(child, parentChildren[index].children)
         }
     }
 
     for (const projectsConfig of projectsConfigs) {
-        await recursionTree(projectsConfig, projectOptionsList)
+        recursionTree(projectsConfig, projectOptionsList)
     }
 
     return projectOptionsList
@@ -61,12 +62,12 @@ export function resolveServerOptions(serverConfigs?: ServerConfig) {
         port: 3001,
         host: "127.0.0.1",
         open: true,
-        template: "@tracer/client/templates/dev.html"
+        template: join(cwd(), "node_modules", "@tracer/client/templates/dev.html")
     })
 }
 export function resolveBuildOptions(buildConfigs?: buildConfig) {
     return withDefault<buildConfig>(buildConfigs, {
-        template: "@tracer/client/templates/build.html"
+        template: join(cwd(), "node_modules", "@tracer/client/templates/build.html")
     })
 }
 

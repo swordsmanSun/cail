@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { initApp } from "../../src/app/init";
-import { App } from "../../types";
+import { App } from "../../types/options";
 import { resolveProjectOptions } from "../../src/app/resolveOptions";
 import { CreateUsePluginFunction, defineOptions } from "../../src/app/plugin";
 import { onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching } from "../../src/app/hook";
@@ -33,8 +33,8 @@ describe("init", async () => {
     const correctProject = {
         name: "app",
         type: "npm",
-        path: "D:\\07_project\\19_字节青训营\\01_tracer\\packages\\node\\__test__\\app",
-        packageModule: await importPackageJson(join(__dirname, "package.json")),
+        path: "D:/07_project/19_字节青训营/01_tracer/packages/node/__test__/app",
+        packageModule: importPackageJson(join(__dirname, "package.json")),
         children: [],
         dependencyTree: 1,
         package: "package.json"

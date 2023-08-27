@@ -1,6 +1,6 @@
 import { join } from "path";
 import { expect, test } from "vitest";
-import { importModule, importPackageJson, packageJsonDefault } from "../../src/module/importModule";
+import { importJson, importModule, importPackageJson, packageJsonDefault } from "../../src/module/importModule";
 
 test("importModule", async () => {
     expect(await importModule(join(__dirname, "./importModule.js"))).toMatchObject({
@@ -21,6 +21,12 @@ test("importModule", async () => {
 test("importPackageJson", async () => {
     expect(await importPackageJson(join(__dirname, "./importModule.json"))).toEqual({
         ...packageJsonDefault(),
+        test: 2
+    })
+})
+
+test("importJson", () => {
+    expect(importJson(join(__dirname, "./importModule.json"))).toEqual({
         test: 2
     })
 })

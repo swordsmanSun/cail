@@ -1,5 +1,5 @@
 import { Bundler } from "@tracer/bundler"
-import { PluginFunction } from "."
+import { PluginFunction } from "./options"
 
 export interface SiteDataConfig {
     /**

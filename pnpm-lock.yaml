@@ -88,7 +88,17 @@ importers:
         specifier: ^20.5.0
         version: 20.5.0
 
-  packages/client: {}
+  packages/client:
+    dependencies:
+      '@tracer/node':
+        specifier: workspace:^
+        version: link:../node
+      vue:
+        specifier: ^3.3.4
+        version: 3.3.4
+      vue-router:
+        specifier: ^4.2.4
+        version: 4.2.4(vue@3.3.4)
 
   packages/node:
     dependencies:
@@ -115,6 +125,8 @@ importers:
         specifier: ^20.5.0
         version: 20.5.0
 
+  packages/node/__test__/__fixtures__/createApp: {}
+
   packages/node/__test__/analyzers/npmProject:
     dependencies:
       react:
@@ -136,7 +148,7 @@ importers:
   packages/node/__test__/app: {}
 
   packages/plugins/plugin-output:
-    devDependencies:
+    dependencies:
       '@tracer/node':
         specifier: workspace:^
         version: link:../../node
@@ -157,6 +169,10 @@ importers:
         version: 20.5.0
 
   playground:
+    dependencies:
+      '@tracer/client':
+        specifier: workspace:^
+        version: link:../packages/client
     devDependencies:
       '@tracer/cli':
         specifier: workspace:^
@@ -885,7 +901,6 @@ packages:
 
   /@vue/devtools-api@6.5.0:
     resolution: {integrity: sha512-o9KfBeaBmCKl10usN4crU53fYtC1r7jJwdGKjPT24t348rHxgfpZ0xL3Xm/gLUYnc0oTp8LAmrxOeLyu6tbk2Q==}
-    dev: true
 
   /@vue/reactivity-transform@3.3.4:
     resolution: {integrity: sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==}
@@ -2755,7 +2770,6 @@ packages:
     dependencies:
       '@vue/devtools-api': 6.5.0
       vue: 3.3.4
-    dev: true
 
   /vue@3.3.4:
     resolution: {integrity: sha512-VTyEYn3yvIeY1Py0WaYGZsXnz3y5UnGi62GjVEqvEGPl6nxbOrCXbVOTQWBEJUqAyTUk2uJ5JLVnYJ6ZzGbrSw==}

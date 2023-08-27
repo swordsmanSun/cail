@@ -1,6 +1,5 @@
 import { createApp, loadConfigObject } from "@tracer/node"
 import { tracerPluginOutput } from "@tracer/plugin-output"
-import type { FSWatcher } from 'chokidar'
 import { createPackageJsonWatcher, createUserConfigWatcher } from "../utils/createWatchers"
 
 export function setupDev(ctx: CliContext) {
@@ -9,7 +8,7 @@ export function setupDev(ctx: CliContext) {
     program
         .command("dev")
         .description("dev to static site")
-        .action(async () => {
+        .action(async function dev() {
             const config = await loadConfigObject(dirname)
             // create app
             const app = await createApp(config)
@@ -22,10 +21,16 @@ export function setupDev(ctx: CliContext) {
 
             const closeServer = await app.bundler.dev(app)
             const restartServer = async () => {
-
+                await Promise.all([
+                    ...watchers.map(watcher => watcher.close()),
+                    closeServer
+                ])
+                await dev()
             }
 
-            const pkgJsonWatcher = createPackageJsonWatcher(app)
-            const userConfigWatcher = createUserConfigWatcher(app, restartServer)
+            const watchers = [
+                createPackageJsonWatcher(app),
+                createUserConfigWatcher(app, restartServer)
+            ]
         })
 }

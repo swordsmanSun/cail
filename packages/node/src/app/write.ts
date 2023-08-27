@@ -1,5 +1,5 @@
 import { debug } from "@tracer/utils"
-import { App } from "../../types";
+import { App } from "../../types/options";
 import { runHook } from "./hook";
 const log = debug("@tracer/node:app")
 

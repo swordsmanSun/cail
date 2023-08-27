@@ -15,5 +15,7 @@
         "@tracer/cli": "workspace:^",
         "@tracer/node": "workspace:^"
     },
-    "dependencies": {}
+    "dependencies": {
+        "@tracer/client": "workspace:^"
+    }
 }

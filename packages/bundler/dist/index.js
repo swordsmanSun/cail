@@ -7,6 +7,8 @@ import { mergeConfig } from "vite";
 
 // src/utils/viteTracerPlugin.ts
 import { readFileSync } from "fs";
+import { join } from "path";
+import { cwd } from "process";
 function vitePluginTracer(props) {
   const { app, isBuild } = props;
   return {
@@ -40,7 +42,12 @@ function resolveAlias(path) {
     replacement: path[key]()
   }));
   return [
-    ...sysAlias
+    ...sysAlias,
+    // client alias
+    {
+      find: "@",
+      replacement: join(cwd(), "node_modules/@tracer/client/src")
+    }
   ];
 }
 
@@ -70,15 +77,18 @@ async function build(bundlerConfigs, app) {
 // src/dev/index.ts
 import { createServer } from "vite";
 import { chalk, importPackageJson } from "@tracer/utils";
+import { dirname, join as join2 } from "path";
+import { fileURLToPath } from "url";
 async function dev(bundlerConfigs, app) {
+  const { server: { host, port } } = app;
   const viteOptions = resolveViteOptions({ app, bundlerConfigs, isBuild: false });
   const server = await createServer(viteOptions);
   await server.listen();
-  const viteVersion = (await importPackageJson("vite/package.json")).version;
+  const viteVersion = importPackageJson(join2(dirname(fileURLToPath(import.meta.url)), "../node_modules/vite/package.json")).version;
   server.config.logger.info(
     chalk.cyan(`
-  vite v${viteVersion}`) + chalk.green(` dev server running at:
-`),
+vite v${viteVersion}
+`) + chalk.green(`dev server running at:	http://${host}:${port}`),
     {
       clear: !server.config.logger.hasWarned
     }

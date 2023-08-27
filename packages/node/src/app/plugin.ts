@@ -1,4 +1,4 @@
-import { App, AppMethods, PluginFunction, PluginObject, PluginObjectUserSide } from "../../types"
+import { App, AppMethods, PluginFunction, PluginObject, PluginObjectUserSide } from "../../types/options"
 import { chalk, debug } from "@tracer/utils"
 
 const log = debug("@tracer/node:app")

@@ -1,5 +1,5 @@
 import { outputFileSync } from "fs-extra/esm"
-import { App, PathOptions, ProjectOptions, WriteTemp } from "../../types"
+import { App, PathOptions, ProjectOptions, WriteTemp } from "../../types/options"
 import { getAnalyzerByName } from "../analyzers"
 import { runHook } from "./hook"
 /**

@@ -1,5 +1,7 @@
 import { App } from "@tracer/node";
 import { readFileSync } from "fs";
+import { join } from "path";
+import { cwd } from "process";
 import { Plugin } from "vite";
 
 export function vitePluginTracer(props: { app: App, isBuild?: boolean }): Plugin {
@@ -40,6 +42,11 @@ export function resolveAlias(path: App["path"]) {
         replacement: path[key]()
     }))
     return [
-        ...sysAlias
+        ...sysAlias,
+        // client alias
+        {
+            find: "@",
+            replacement: join(cwd(), "node_modules/@tracer/client/src"),
+        },
     ]
 }

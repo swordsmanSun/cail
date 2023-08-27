@@ -1,4 +1,4 @@
-import { App, ProjectOptions } from "../../types";
+import { App, ProjectOptions } from "../../types/options";
 import { debug } from "@tracer/utils"
 import { getAnalyzerByName } from "../analyzers";
 import { runHook } from "./hook";
