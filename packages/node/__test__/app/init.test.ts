@@ -4,9 +4,9 @@ import { App } from "../../types/options";
 import { resolveProjectOptions } from "../../src/app/resolveOptions";
 import { CreateUsePluginFunction, defineOptions } from "../../src/app/plugin";
 import { onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching } from "../../src/app/hook";
-import { importPackageJson } from "@tracer/utils";
 import { join } from "path";
 import { CreateAnalyze } from "../../src/app/createOptions";
+import { importPackageJson } from "../../src/utils/importModule";
 
 describe("init", async () => {
     let projects: any
@@ -25,7 +25,7 @@ describe("init", async () => {
             onBuilt(fn)
             onWatching(fn)
         }],
-        projects: await resolveProjectOptions([], __dirname),
+        projects: resolveProjectOptions([], __dirname),
         use: CreateUsePluginFunction(1 as any)
     } as unknown as App
     app.analyze = CreateAnalyze(app.projects)

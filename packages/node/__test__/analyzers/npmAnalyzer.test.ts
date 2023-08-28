@@ -1,14 +1,14 @@
-import { importPackageJson } from "@tracer/utils";
+import { importPackageJson } from "../../src/utils/importModule";
 import { join } from "path";
 import { expect, test } from "vitest";
-import { DepTree, npmAnalyzer } from "../../src";
+import { DepForest, npmAnalyzer } from "../../src";
 
 test("npmAnalyzer", async () => {
     const reactPackageObject = await importPackageJson(join(__dirname, "./npmProject/node_modules/react/package.json"))
     const looseEnvifyPackageObject = await importPackageJson(join(__dirname, "./npmProject/node_modules/loose-envify/package.json"))
     const jsTokensPackageObject = await importPackageJson(join(__dirname, "./npmProject/node_modules/js-tokens/package.json"))
 
-    const depthTree: DepTree = [
+    const depthTree: DepForest = [
         {
             packageModule: reactPackageObject,
             children: [

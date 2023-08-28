@@ -1,5 +1,6 @@
+export { default as debug } from 'debug';
+export { default as chalk } from 'chalk';
 import { Bundler } from '@tracer/bundler';
-import { PackageJsonObject } from '@tracer/utils';
 
 type Hooks = {
     temped: () => void;
@@ -9,6 +10,33 @@ type Hooks = {
     built: () => void;
     initialized: (projects: ProjectOptions[]) => void;
 };
+
+interface PackageJsonObject {
+    name: string;
+    version: string;
+    description: string;
+    main: string;
+    module: string;
+    types: string;
+    files: string[];
+    scripts: {
+        [key: string]: string;
+    };
+    dependencies: {
+        [key: string]: string;
+    };
+    devDependencies: {
+        [key: string]: string;
+    };
+    peerDependencies: {
+        [key: string]: string;
+    };
+    optionalDependencies: {
+        [key: string]: string;
+    };
+    bundledDependencies: string[];
+    keywords: string[];
+}
 
 type DepNode = {
     /**
@@ -21,7 +49,7 @@ type DepNode = {
     isCircular?: boolean;
     children?: DepNode[];
 };
-type DepTree = DepNode[];
+type DepForest = DepNode[];
 type Visitor = Hooks["analyzing"];
 
 type ProjectOptions = Omit<Required<ProjectConfig>, "children"> & {
@@ -30,7 +58,7 @@ type ProjectOptions = Omit<Required<ProjectConfig>, "children"> & {
     */
     packageModule: Partial<PackageJsonObject>;
     children: ProjectOptions[];
-    dependencyTree: DepTree;
+    dependencyTree: DepForest;
 };
 type PathOptions = {
     [key in keyof DirConfig]: (...relativePaths: string[]) => string;
@@ -46,6 +74,7 @@ type APPBase = {
     server: ServerOptions;
     build: BuildOptions;
     bundler: Bundler;
+    userConfig: Config;
 };
 type AppMethods = {
     use: (plugin: PluginFunction) => void;
@@ -146,27 +175,58 @@ declare function loadConfigModule(dirname: string): Promise<{
 declare function loadConfigObject(dirname: string): Promise<Config>;
 
 /**
- * @param pkgJSONAbsPath The absolute file path of the package.json of the project
- * @param modulesDir Dependencies directory
- * @returns
+ * @param fileAbsPath the absolute path of the module
+ * @returns the out module of the config file
  */
-declare function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree;
+declare function importModule<M>(fileAbsPath: string): Promise<M>;
+declare function importJson(fileAbsPath: string): any;
+/**
+ * @returns the default values of package.json
+ */
+declare const packageJsonDefault: () => {
+    name: string;
+    version: string;
+    description: string;
+    main: string;
+    module: string;
+    types: string;
+    files: any[];
+    scripts: {};
+    dependencies: {};
+    devDependencies: {};
+    peerDependencies: {};
+    optionalDependencies: {};
+    bundledDependencies: any[];
+    keywords: any[];
+};
+/**
+ * @param fileAbsPath the absolute path of package.json
+ * @returns the out object of the package.json with default values
+ */
+declare function importPackageJson(fileAbsPath: string): PackageJsonObject;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree;
+declare function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepTree;
+declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest;
 
-declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => (projectPath: string, visitor: Visitor) => DepTree;
+/**
+ * @param pkgJSONAbsPath The absolute file path of the package.json of the project
+ * @param modulesDir Dependencies directory
+ * @returns
+ */
+declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest;
+
+declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => (projectPath: string, visitor: Visitor) => DepForest;
 
 declare function createApp(config: Config, projectDir?: string): App;
 
@@ -212,4 +272,4 @@ declare function CreateUsePluginFunction(app: Omit<App, keyof AppMethods>): (plu
 declare function defineOptions(pluginObject: PluginObjectUserSide): void;
 declare function getPluginObject(pluginFunction: PluginFunction): PluginObjectUserSide;
 
-export { APPBase, App, AppMethods, AppUtils, BuildOptions, CreateUsePluginFunction, DepNode, DepTree, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, Visitor, WriteTemp, createApp, defineConfig, defineOptions, getActivePlugin, getAnalyzerByName, getConfigFilePath, getPluginObject, importConfigFile, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, pnpmAnalyzer, resolveBuildOptions, resolveBundlerOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };
+export { APPBase, App, AppMethods, AppUtils, BuildOptions, CreateUsePluginFunction, DepForest, DepNode, PathOptions, PluginFunction, PluginObject, PluginObjectUserSide, ProjectOptions, ServerOptions, Visitor, WriteTemp, createApp, defineConfig, defineOptions, getActivePlugin, getAnalyzerByName, getConfigFilePath, getPluginObject, importConfigFile, importJson, importModule, importPackageJson, loadConfigModule, loadConfigObject, npmAnalyzer, onAnalyzed, onAnalyzing, onBuilt, onInitialized, onTemped, onWatching, packageJsonDefault, pnpmAnalyzer, resolveBuildOptions, resolveBundlerOptions, resolvePathOptions, resolveProjectOptions, resolveServerOptions, runHook, yarnAnalyzer };

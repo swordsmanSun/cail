@@ -1,5 +1,5 @@
 // src/build/index.ts
-import { debug } from "@tracer/utils";
+import { debug } from "@tracer/node";
 
 // src/utils/resolveOptions.ts
 import vuePlugin from "@vitejs/plugin-vue";
@@ -76,7 +76,7 @@ async function build(bundlerConfigs, app) {
 
 // src/dev/index.ts
 import { createServer } from "vite";
-import { chalk, importPackageJson } from "@tracer/utils";
+import { chalk, importPackageJson } from "@tracer/node";
 import { dirname, join as join2 } from "path";
 import { fileURLToPath } from "url";
 async function dev(bundlerConfigs, app) {

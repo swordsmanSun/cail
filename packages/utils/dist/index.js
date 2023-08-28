@@ -1,50 +1,6 @@
-// src/index.ts
-import { default as default2 } from "debug";
-import { default as default3 } from "chalk";
-
 // src/functional/index.ts
 function Pipe(...fns) {
   return (...args) => fns.reduce((arg, fn) => arg.length ? fn(...arg) : fn(arg), args);
-}
-
-// src/module/importModule.ts
-import { pathToFileURL } from "url";
-import { readFileSync } from "fs";
-async function importModule(fileAbsPath) {
-  let module;
-  try {
-    module = await import(fileAbsPath);
-  } catch (error) {
-    module = await import(pathToFileURL(fileAbsPath).href);
-  }
-  return module;
-}
-function importJson(fileAbsPath) {
-  return JSON.parse(readFileSync(fileAbsPath).toString());
-}
-var packageJsonDefault = () => ({
-  name: "",
-  version: "",
-  description: "",
-  main: "",
-  module: "",
-  types: "",
-  files: [],
-  scripts: {},
-  dependencies: {},
-  devDependencies: {},
-  peerDependencies: {},
-  optionalDependencies: {},
-  bundledDependencies: [],
-  keywords: []
-});
-function importPackageJson(fileAbsPath) {
-  const object = importJson(fileAbsPath);
-  const pkg = {
-    ...packageJsonDefault(),
-    ...object
-  };
-  return pkg;
 }
 
 // src/common/withDefault.ts
@@ -61,68 +17,70 @@ function withDefault(value, defaultValue) {
 }
 
 // src/common/tree.ts
-function DFS(tree, callbackFn, props = { children: "children" }) {
+function DFS(tree, callbackFn, props, depth = 1) {
+  props = props ?? { children: "children" };
   if (Array.isArray(tree)) {
     for (const node of tree) {
-      if (callbackFn(node) === false)
+      if (callbackFn(node, depth) === false)
         return;
       const subTree = node[props.children];
       if (subTree && Array.isArray(subTree)) {
-        DFS(subTree, callbackFn);
+        DFS(subTree, callbackFn, props, depth + 1);
       }
     }
   } else {
-    DFS([tree], callbackFn);
+    DFS([tree], callbackFn, props, depth);
   }
 }
-function BFS(tree, callbackFn, props = { children: "children" }) {
+function BFS(tree, callbackFn, props) {
+  props = props ?? { children: "children" };
   if (Array.isArray(tree)) {
-    const queue = tree;
+    const queue = tree.map((tree2) => ({ tree: tree2, depth: 1 }));
     while (queue.length) {
-      const node = queue.shift();
-      if (callbackFn(node) === false)
+      const { tree: tree2, depth } = queue.shift();
+      if (callbackFn(tree2, depth) === false)
         return;
-      const subTree = node[props.children];
+      const subTree = tree2[props.children];
       if (subTree && Array.isArray(subTree)) {
-        queue.push(...subTree);
+        queue.push(...subTree.map((tree3) => ({ tree: tree3, depth: depth + 1 })));
       }
     }
   } else {
-    DFS([tree], callbackFn);
+    BFS([tree], callbackFn, props);
   }
 }
 function DFSReduce(tree, callbackFn, initialValue, props = { children: "children" }) {
   if (Array.isArray(tree)) {
     if (initialValue !== void 0) {
       let result = initialValue;
-      DFS(tree, (node) => {
-        result = callbackFn(result, node);
+      DFS(tree, (node, depth) => {
+        result = callbackFn(result, node, depth);
       }, props);
       return result;
     } else {
       let result = tree[0];
       if (result[props.children]) {
-        DFS(result[props.children], (node) => {
-          result = callbackFn(result, node);
-        });
+        DFS(result[props.children], (node, depth) => {
+          result = callbackFn(result, node, depth);
+        }, null, 2);
       }
-      DFS(tree.slice(1), (node) => {
-        result = callbackFn(result, node);
+      DFS(tree.slice(1), (node, depth) => {
+        result = callbackFn(result, node, depth);
       }, props);
       return result;
     }
   }
+}
+function treeDepth(tree, props) {
+  return DFSReduce(tree, (pre, node, depth) => {
+    return Math.max(depth, pre);
+  }, 1, props);
 }
 export {
   BFS,
   DFS,
   DFSReduce,
   Pipe,
-  default3 as chalk,
-  default2 as debug,
-  importJson,
-  importModule,
-  importPackageJson,
-  packageJsonDefault,
+  treeDepth,
   withDefault
 };

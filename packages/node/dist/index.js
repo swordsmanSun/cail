@@ -1,3 +1,7 @@
+// src/index.ts
+import { default as default2 } from "debug";
+import { default as default3 } from "chalk";
+
 // src/helper/index.ts
 function defineConfig(config) {
   return config;
@@ -7,7 +11,48 @@ function defineConfig(config) {
 import { existsSync, unlinkSync } from "fs";
 import { dirname, join } from "path";
 import { cwd } from "process";
-import { importModule } from "@tracer/utils";
+
+// src/utils/importModule.ts
+import { pathToFileURL } from "url";
+import { readFileSync } from "fs";
+async function importModule(fileAbsPath) {
+  let module;
+  try {
+    module = await import(fileAbsPath);
+  } catch (error) {
+    module = await import(pathToFileURL(fileAbsPath).href);
+  }
+  return module;
+}
+function importJson(fileAbsPath) {
+  return JSON.parse(readFileSync(fileAbsPath).toString());
+}
+var packageJsonDefault = () => ({
+  name: "",
+  version: "",
+  description: "",
+  main: "",
+  module: "",
+  types: "",
+  files: [],
+  scripts: {},
+  dependencies: {},
+  devDependencies: {},
+  peerDependencies: {},
+  optionalDependencies: {},
+  bundledDependencies: [],
+  keywords: []
+});
+function importPackageJson(fileAbsPath) {
+  const object = importJson(fileAbsPath);
+  const pkg = {
+    ...packageJsonDefault(),
+    ...object
+  };
+  return pkg;
+}
+
+// src/utils/configFile.ts
 function getConfigFilePath(dirname2 = cwd()) {
   const extensions = ["ts", "js", "mjs"];
   const configFileName = "tracer.config";
@@ -45,23 +90,20 @@ async function loadConfigObject(dirname2) {
 }
 
 // src/analyzers/npmAnalyzer.ts
-import { importPackageJson } from "@tracer/utils";
 function npmAnalyzer(pkgJSONAbsPath, modulesDir) {
   const module = importPackageJson(pkgJSONAbsPath);
   return 1;
 }
 
 // src/analyzers/pnpmAnalyzer.ts
-import { importPackageJson as importPackageJson2 } from "@tracer/utils";
 function pnpmAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = importPackageJson2(pkgJSONAbsPath);
+  const module = importPackageJson(pkgJSONAbsPath);
   return 1;
 }
 
 // src/analyzers/yarnAnalyzer.ts
-import { importPackageJson as importPackageJson3 } from "@tracer/utils";
 function yarnAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = importPackageJson3(pkgJSONAbsPath);
+  const module = importPackageJson(pkgJSONAbsPath);
   return 1;
 }
 
@@ -87,7 +129,7 @@ function NodeAnalyzer(analyzer) {
 }
 
 // src/app/resolveOptions.ts
-import { importPackageJson as importPackageJson4, withDefault } from "@tracer/utils";
+import { withDefault } from "@tracer/utils";
 import { join as join3, normalize, sep } from "path";
 import { cwd as cwd2 } from "process";
 import { bundler } from "@tracer/bundler";
@@ -105,7 +147,7 @@ function resolveProjectOptions(projectsConfigs, projectDir) {
   let projectOptionsList = [];
   if (!projectsConfigs?.length) {
     projectsConfigs = [];
-    const packageJsonObject = importPackageJson4(join3(projectDir || cwd2(), "./package.json"));
+    const packageJsonObject = importPackageJson(join3(projectDir || cwd2(), "./package.json"));
     projectsConfigs.push({
       name: packageJsonObject.name,
       path: projectDir || cwd2() && normalize(projectDir || cwd2()).split(sep).join("/"),
@@ -119,9 +161,9 @@ function resolveProjectOptions(projectsConfigs, projectDir) {
     parentChildren.push({
       ...node,
       path: node.path && normalize(node.path).split(sep).join("/"),
-      name: node.name || importPackageJson4(join3(node.path, "./package.json")).name,
+      name: node.name || importPackageJson(join3(node.path, "./package.json")).name,
       type: node.type || "npm",
-      packageModule: importPackageJson4(join3(node.path, "./package.json")),
+      packageModule: importPackageJson(join3(node.path, "./package.json")),
       children: [],
       dependencyTree: null,
       package: node.package || "package.json"
@@ -204,7 +246,7 @@ function CreateAnalyze(projects) {
         return;
       const { children = [], type, path } = project;
       const analyzer = getAnalyzerByName(type);
-      project.dependencyTree = await analyzer(path, (node) => runHook("analyzing", node, depth));
+      project.dependencyTree = analyzer(path, (node) => runHook("analyzing", node, depth));
       runHook("analyzed", project);
       for (const child of children) {
         await depthTraverse(child, depth + 1);
@@ -217,7 +259,8 @@ function CreateAnalyze(projects) {
 }
 
 // src/app/plugin.ts
-import { chalk, debug } from "@tracer/utils";
+import debug from "debug";
+import chalk from "chalk";
 var log = debug("@tracer/node:app");
 var pluginsObject = /* @__PURE__ */ new WeakMap();
 var activePluginFunction;
@@ -256,7 +299,7 @@ function getPluginObject(pluginFunction) {
 }
 
 // src/app/init.ts
-import { debug as debug2 } from "@tracer/utils";
+import debug2 from "debug";
 var log2 = debug2("@tracer/node:app");
 async function initApp(app) {
   log2("initializing app...");
@@ -271,11 +314,12 @@ function CreateInitAppFunction(app) {
 }
 
 // src/app/write.ts
-import { debug as debug3 } from "@tracer/utils";
+import debug3 from "debug";
 var log3 = debug3("@tracer/node:app");
 function write(app) {
   log3("write temporary files");
   writeAnalysis(app);
+  writeConfigs(app);
   runHook("temped");
   log3("write temporary files done");
 }
@@ -285,11 +329,17 @@ function CreateWriteFunction(app) {
 function writeAnalysis(app) {
   const { writeTemp, projects } = app;
   const content = `export const projects = JSON.parse('${JSON.stringify(projects)}')`;
-  writeTemp("projectsData.js", content);
+  writeTemp("projects.js", content);
+}
+function writeConfigs(app) {
+  const { writeTemp, userConfig } = app;
+  const content = `export const userConfig = JSON.parse('${JSON.stringify(userConfig)}')`;
+  writeTemp("userConfig.js", content);
 }
 
 // src/app/createApp.ts
 function createApp(config, projectDir) {
+  const userConfig = config;
   const projects = resolveProjectOptions(config.projects, projectDir);
   const path = resolvePathOptions(config.dir, projectDir);
   const plugins = config.plugins;
@@ -306,6 +356,7 @@ function createApp(config, projectDir) {
     server,
     build,
     bundler: bundler2,
+    userConfig,
     // utils
     writeTemp
   };
@@ -317,7 +368,9 @@ function createApp(config, projectDir) {
 }
 export {
   CreateUsePluginFunction,
+  default3 as chalk,
   createApp,
+  default2 as debug,
   defineConfig,
   defineOptions,
   getActivePlugin,
@@ -325,6 +378,9 @@ export {
   getConfigFilePath,
   getPluginObject,
   importConfigFile,
+  importJson,
+  importModule,
+  importPackageJson,
   loadConfigModule,
   loadConfigObject,
   npmAnalyzer,
@@ -334,6 +390,7 @@ export {
   onInitialized,
   onTemped,
   onWatching,
+  packageJsonDefault,
   pnpmAnalyzer,
   resolveBuildOptions,
   resolveBundlerOptions,

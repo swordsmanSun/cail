@@ -1,5 +1,5 @@
-import { PackageJsonObject } from "@tracer/utils"
 import { Hooks } from "./hook"
+import { PackageJsonObject } from "./packageJson"
 
 export type DepNode = {
     /**
@@ -12,6 +12,7 @@ export type DepNode = {
     isCircular?: boolean
     children?: DepNode[]
 }
-export type DepTree = DepNode[]
+
+export type DepForest = DepNode[]
 
 export type Visitor = Hooks["analyzing"]

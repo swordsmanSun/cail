@@ -1,0 +1,1 @@
+export type TreeTraverseContext<N> = { depth: number, parent?: N, childIndex?: number }

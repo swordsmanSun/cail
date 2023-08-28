@@ -2,7 +2,7 @@ import { existsSync, unlinkSync } from "fs"
 import { dirname, join } from "path"
 import { Config } from "../../types/config"
 import { cwd } from "process"
-import { importModule } from "@tracer/utils"
+import { importModule } from "./importModule"
 
 /**
  * @param dirname current file execution directory

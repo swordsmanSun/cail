@@ -1,8 +1,8 @@
-import { importPackageJson } from "@tracer/utils";
 import { cwd } from "process";
 import { join, normalize, sep } from "path";
 import { expect, test, describe } from "vitest";
 import { resolveProjectOptions, resolvePathOptions, resolveServerOptions, resolveBuildOptions } from "../../src/app/resolveOptions";
+import { importPackageJson } from "../../src/utils/importModule";
 
 describe('resolveProjectOptions', () => {
     test("empty params", () => {

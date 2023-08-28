@@ -5,10 +5,8 @@ import { createRequire } from "module";
 import { cwd as cwd2 } from "process";
 
 // src/settings/build.ts
-import { createApp } from "@tracer/node";
-import { loadConfigObject, runHook } from "@tracer/node";
+import { createApp, chalk, loadConfigObject, runHook } from "@tracer/node";
 import { tracerPluginOutput } from "@tracer/plugin-output";
-import { chalk } from "@tracer/utils";
 function setupBuild(ctx) {
   const { program, dirname } = ctx;
   program.command("build").description("Build to static site").action(async () => {

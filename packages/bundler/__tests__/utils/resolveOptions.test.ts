@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { resolveViteOptions } from "../../src/utils/resolveOptions";
 
 describe("resolveViteOptions", async () => {
-    const app = await createApp(await loadConfigObject(__dirname))
+    const app = createApp(await loadConfigObject(__dirname))
 
     test("default params", () => {
 

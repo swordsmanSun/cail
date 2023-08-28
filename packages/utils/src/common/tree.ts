@@ -1,76 +1,107 @@
+import { TreeTraverseContext } from "../../types/tree"
+import { withDefault } from "./withDefault"
+
+/**
+ * Perform the specified action for each node in the tree or forest using depth-first search
+ * @param tree Tree or forest
+ * @param callbackFn A function that accepts up two arguments. DFS calls the callbackfn function one time for each node in the tree or forest.
+ * @param props Props.children is the name of the children property
+ */
 export function DFS<T>(
-    tree: T | T[],
-    callbackFn: (node: T) => any,
-    props: { children?: string } = { children: "children" }
+    node: T,
+    callbackFn: (node: T, context: TreeTraverseContext<T>) => any,
+    props?: { children?: string },
+    context?: TreeTraverseContext<T>
 ) {
-    if (Array.isArray(tree)) {
-        for (const node of tree) {
-            if (callbackFn(node) === false) return
+    props = withDefault(props, { children: "children" })
+    context = withDefault(context, {
+        depth: 1
+    })
 
-            const subTree = node[props.children]
-            if (subTree && Array.isArray(subTree)) {
-                DFS(subTree, callbackFn)
-            }
-        }
+    if (callbackFn(node, context) === false) return
 
-    } else {
-        DFS([tree], callbackFn)
-    }
+    node[props.children]?.forEach((node: T, i: number) => DFS(node, callbackFn, props, {
+        parent: node,
+        childIndex: i,
+        depth: context.depth + 1
+    }))
 }
-
+// TODO change it as the DFS
+/**
+ * Perform the specified action for each node in the tree or forest using breadth-first search
+ * @param tree Tree or forest
+ * @param callbackFn A function that accepts up two arguments. DFS calls the callbackfn function one time for each node in the tree or forest.
+ * @param props Props.children is the name of the children property
+ */
 export function BFS<T>(
     tree: T | T[],
-    callbackFn: (node: T) => any,
-    props: { children?: string } = { children: "children" }
+    callbackFn: (node: T, depth: number) => any,
+    props?: { children?: string }
 ) {
+    props = props ?? { children: "children" }
+
     if (Array.isArray(tree)) {
-        const queue = tree
+        const queue = tree.map(tree => ({ tree, depth: 1 }))
 
         while (queue.length) {
-            const node = queue.shift()
-            if (callbackFn(node) === false) return
+            const { tree, depth } = queue.shift()
+            if (callbackFn(tree, depth) === false) return
 
-            const subTree = node[props.children]
+            const subTree = tree[props.children]
             if (subTree && Array.isArray(subTree)) {
-                queue.push(...subTree)
+                queue.push(...subTree.map(tree => ({ tree, depth: depth + 1 })))
             }
         }
     } else {
-        DFS([tree], callbackFn)
+        BFS([tree], callbackFn, props)
     }
 }
-
+/**
+ * Perform the specified action for each node in the tree or forest using depth-first search.
+ * The return value of the callback function is the accumulated result, and it is provided as an argument in the next call to the callback function.
+ * @param tree Tree or forest
+ * @param callbackFn  A function that accepts up one arguments. DFS calls the callbackfn function one time for each node in the tree or forest.
+ * @param initialValue If initial value is specified, it is used as the initial value to start the accumulation. 
+ * @param props Props.children is the name of the children property
+ * @returns The accumulated result
+ */
 export function DFSReduce<T, R, I = undefined,>(
-    tree: T | T[],
-    callbackFn: (previousValue: I extends undefined ? Record<any, any> : I, currentValue: T) => R,
+    tree: T,
+    callbackFn: (previousValue: I extends undefined ? Record<any, any> : I, currentValue: T, context: TreeTraverseContext<T>) => R,
     initialValue?: I,
     props: { children?: string } = { children: "children" }
 ): I extends undefined ? R : I {
-    if (Array.isArray(tree)) {
-        if (initialValue !== undefined) {
-            let result = initialValue
+    if (initialValue !== undefined) {
+        let result = initialValue
 
-            DFS(tree, (node) => {
+        DFS(tree, (node, context) => {
+            // @ts-ignore
+            result = callbackFn(result, node, context)
+        }, props)
+
+        return result as any
+    } else {
+        let result = tree
+
+        tree[props.children]?.forEach((node: T, index: number) => {
+            DFS(node, (node, context) => {
                 // @ts-ignore
-                result = callbackFn(result, node)
-            }, props)
+                result = callbackFn(result, node, context)
+            }, null, { depth: 2, parent: tree, childIndex: index })
+        })
 
-            return result as any
-        } else {
-            let result = tree[0]
-
-            if (result[props.children]) {
-                DFS(result[props.children], (node) => {
-                    // @ts-ignore
-                    result = callbackFn(result, node)
-                })
-            }
-            DFS(tree.slice(1), (node) => {
-                // @ts-ignore
-                result = callbackFn(result, node)
-            }, props)
-
-            return result as any
-        }
+        return result as any
     }
 }
+/**
+ * Get the depth of the tree
+ * @param tree tree 
+ * @param props Props.children is the name of the children property
+ * @returns The depth of the tree
+ */
+export function treeDepth<T>(tree: T, props?: { children?: string }) {
+    return DFSReduce(tree, (pre, node, { depth }) => {
+        return Math.max(depth, pre)
+    }, 1, props)
+}
+

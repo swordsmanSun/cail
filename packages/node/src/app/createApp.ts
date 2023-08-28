@@ -8,6 +8,7 @@ import { CreateWriteFunction } from "./write";
 
 export function createApp(config: Config, projectDir?: string) {
     // app base data
+    const userConfig = config
     const projects = resolveProjectOptions(config.projects, projectDir)
     const path = resolvePathOptions(config.dir, projectDir)
     const plugins = config.plugins
@@ -26,6 +27,7 @@ export function createApp(config: Config, projectDir?: string) {
         server,
         build,
         bundler,
+        userConfig,
         // utils
         writeTemp,
     } as App

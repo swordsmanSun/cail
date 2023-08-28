@@ -14,7 +14,12 @@
         "./app": "./src/index.ts"
     },
     "dependencies": {
+        "@antv/x6": "^2.13.1",
         "@tracer/node": "workspace:^",
+        "@tracer/utils": "workspace:^",
+        "element-plus": "^2.3.12",
+        "normalize.css": "^8.0.1",
+        "pinia": "^2.1.6",
         "vue": "^3.3.4",
         "vue-router": "^4.2.4"
     }

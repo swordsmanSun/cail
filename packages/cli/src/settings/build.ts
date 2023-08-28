@@ -1,7 +1,5 @@
-import { createApp } from "@tracer/node";
-import { loadConfigObject, runHook } from "@tracer/node"
+import { createApp, chalk, loadConfigObject, runHook } from "@tracer/node";
 import { tracerPluginOutput } from "@tracer/plugin-output"
-import { chalk } from "@tracer/utils"
 export function setupBuild(ctx: CliContext) {
     const { program, dirname } = ctx
 
@@ -12,9 +10,9 @@ export function setupBuild(ctx: CliContext) {
             const config = await loadConfigObject(dirname)
             console.log(0);
             // create app
-            const app = await createApp(config)
+            const app = createApp(config)
             console.log(1);
-            
+
             // TODO  use the official plugins
             app.use(tracerPluginOutput())
             console.log(2);

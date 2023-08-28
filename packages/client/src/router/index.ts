@@ -1,4 +1,5 @@
 import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router"
+import { userConfig } from "@temp/userConfig"
 
 const routes: Readonly<RouteRecordRaw[]> = [
     {
@@ -10,6 +11,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
 
 export const router = createRouter({
     // TODO need to change
-    history: createWebHistory("/tracer/"),
+    history: createWebHistory(userConfig.base),
     routes,
 })

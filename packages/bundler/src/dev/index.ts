@@ -1,9 +1,8 @@
-import { App } from "@tracer/node";
 import { Bundler } from "../../types/bundler";
 import { BundlerConfigs } from "../../types/options";
 import { resolveViteOptions } from "../utils/resolveOptions";
 import { createServer } from "vite";
-import { chalk, importPackageJson } from "@tracer/utils";
+import { App, chalk, importPackageJson } from "@tracer/node";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 

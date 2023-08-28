@@ -16,12 +16,15 @@
             "import": "./dist/index.js",
             "require": "./dist/index.js"
         },
-        "./package.json": "./package.json"
+        "./package.json": "./package.json",
+        "./types": "./dist/index.d.ts"
     },
     "dependencies": {
         "@tracer/bundler": "workspace:^",
         "@tracer/client": "workspace:^",
         "@tracer/utils": "workspace:^",
+        "chalk": "^5.3.0",
+        "debug": "^4.3.4",
         "esbuild": "^0.19.2",
         "fs-extra": "^11.1.1"
     },

@@ -1,6 +1,6 @@
 import { join } from "path";
 import { expect, test } from "vitest";
-import { importJson, importModule, importPackageJson, packageJsonDefault } from "../../src/module/importModule";
+import { importJson, importModule, importPackageJson, packageJsonDefault } from "../../src/utils/importModule";
 
 test("importModule", async () => {
     expect(await importModule(join(__dirname, "./importModule.js"))).toMatchObject({

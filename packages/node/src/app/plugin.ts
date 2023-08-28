@@ -1,5 +1,6 @@
+import debug from "debug"
 import { App, AppMethods, PluginFunction, PluginObject, PluginObjectUserSide } from "../../types/options"
-import { chalk, debug } from "@tracer/utils"
+import chalk from "chalk"
 
 const log = debug("@tracer/node:app")
 
@@ -25,7 +26,7 @@ export function CreateUsePluginFunction(app: Omit<App, keyof AppMethods>) {
         plugin(app)
         const pluginObject = getPluginObject(plugin)
         if (!pluginObject?.name) {
-             throw new Error("plugin must have a name")
+            throw new Error("plugin must have a name")
         }
         log(`use plugin ${chalk.blue(pluginObject.name)}`)
         return app

@@ -1,9 +1,10 @@
-import { importPackageJson, withDefault } from "@tracer/utils";
+import { withDefault } from "@tracer/utils";
 import { join, normalize, sep } from "path";
 import { cwd } from "process";
 import { DirConfig, ProjectConfig, ServerConfig, buildConfig } from "../../types/config";
 import { ProjectOptions } from "../../types/options";
 import { Bundler, bundler } from "@tracer/bundler";
+import { importPackageJson } from "../utils/importModule";
 // process user config
 export function resolvePathOptions(dirConfig?: DirConfig, projectDir?: string) {
     // assign default value

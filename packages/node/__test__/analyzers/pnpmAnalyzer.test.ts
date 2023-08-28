@@ -1,7 +1,7 @@
-import { importPackageJson } from "@tracer/utils";
+import { importPackageJson } from "../../src/utils/importModule";
 import { join } from "path";
 import { expect, test } from "vitest";
-import { DepTree } from "../../types/dependency";
+import { DepForest } from "../../types/dependency";
 import { pnpmAnalyzer } from "../../src";
 
 test("pnpmAnalyzer", () => {
@@ -9,7 +9,7 @@ test("pnpmAnalyzer", () => {
     const looseEnvifyPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/loose-envify/package.json"))
     const jsTokensPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/js-tokens/package.json"))
 
-    const depthTree: DepTree = [
+    const depthTree: DepForest = [
         {
             packageModule: reactPackageObject,
             children: [

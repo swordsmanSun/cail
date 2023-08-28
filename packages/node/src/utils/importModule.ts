@@ -1,5 +1,5 @@
 import { pathToFileURL } from "url"
-import { PackageJsonObject } from "../../types"
+import { PackageJsonObject } from  "../../types/packageJson"
 import { readFileSync } from "fs"
 /**
  * @param fileAbsPath the absolute path of the module
