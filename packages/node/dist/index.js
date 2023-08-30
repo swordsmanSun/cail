@@ -342,7 +342,7 @@ function createApp(config, projectDir) {
   const userConfig = config;
   const projects = resolveProjectOptions(config.projects, projectDir);
   const path = resolvePathOptions(config.dir, projectDir);
-  const plugins = config.plugins;
+  const plugins = config.plugins ?? [];
   const base = config.base ?? "/";
   const server = resolveServerOptions(config.server);
   const build = resolveBuildOptions(config.build);

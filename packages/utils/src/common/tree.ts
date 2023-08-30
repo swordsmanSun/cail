@@ -9,22 +9,32 @@ import { withDefault } from "./withDefault"
  */
 export function DFS<T>(
     node: T,
-    callbackFn: (node: T, context: TreeTraverseContext<T>) => any,
+    callbackFn: (node: T, context: TreeTraverseContext<T>) => number | string | boolean | void | undefined | null | ((node: T, context: TreeTraverseContext<T>) => void),
     props?: { children?: string },
     context?: TreeTraverseContext<T>
 ) {
     props = withDefault(props, { children: "children" })
-    context = withDefault(context, {
-        depth: 1
+    if (!context) {
+        context = {
+            depth: 1
+        }
+    }
+    const { depth = 1 } = context
+
+    const exit = callbackFn(node, context)
+    if (exit === false) return
+
+    node[props.children]?.forEach((childNode: T, i: number) => {
+        context.parent = node
+        context.childIndex = i
+        context.depth = depth + 1
+        DFS(childNode, callbackFn, props, context)
     })
-
-    if (callbackFn(node, context) === false) return
-
-    node[props.children]?.forEach((node: T, i: number) => DFS(node, callbackFn, props, {
-        parent: node,
-        childIndex: i,
-        depth: context.depth + 1
-    }))
+    // postorder traversal
+    if (exit instanceof Function) {
+        context.depth = depth
+        exit(node, context)
+    }
 }
 // TODO change it as the DFS
 /**

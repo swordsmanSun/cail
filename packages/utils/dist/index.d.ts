@@ -16,7 +16,13 @@ type TupleLast<T extends unknown[]> = T extends [...infer _, infer L] ? L : neve
 
 declare function Pipe<Fns extends ((...args: unknown[]) => unknown)[]>(...fns: Fns): (...args: Parameters<Fns[0]>) => ReturnType<Cast<TupleLast<Fns>, (...args: unknown[]) => unknown>>;
 
-declare function withDefault<T>(value: Partial<T>, defaultValue: T): T;
+declare function withDefault<T, D>(value: T, defaultValue: D): T;
+
+type TreeTraverseContext<N> = {
+    depth: number;
+    parent?: N;
+    childIndex?: number;
+};
 
 /**
  * Perform the specified action for each node in the tree or forest using depth-first search
@@ -24,9 +30,9 @@ declare function withDefault<T>(value: Partial<T>, defaultValue: T): T;
  * @param callbackFn A function that accepts up two arguments. DFS calls the callbackfn function one time for each node in the tree or forest.
  * @param props Props.children is the name of the children property
  */
-declare function DFS<T>(tree: T | T[], callbackFn: (node: T, depth: number) => any, props?: {
+declare function DFS<T>(node: T, callbackFn: (node: T, context: TreeTraverseContext<T>) => number | string | boolean | void | undefined | null | ((node: T, context: TreeTraverseContext<T>) => void), props?: {
     children?: string;
-}, depth?: number): void;
+}, context?: TreeTraverseContext<T>): void;
 /**
  * Perform the specified action for each node in the tree or forest using breadth-first search
  * @param tree Tree or forest
@@ -45,7 +51,7 @@ declare function BFS<T>(tree: T | T[], callbackFn: (node: T, depth: number) => a
  * @param props Props.children is the name of the children property
  * @returns The accumulated result
  */
-declare function DFSReduce<T, R, I = undefined>(tree: T | T[], callbackFn: (previousValue: I extends undefined ? Record<any, any> : I, currentValue: T, depth: number) => R, initialValue?: I, props?: {
+declare function DFSReduce<T, R, I = undefined>(tree: T, callbackFn: (previousValue: I extends undefined ? Record<any, any> : I, currentValue: T, context: TreeTraverseContext<T>) => R, initialValue?: I, props?: {
     children?: string;
 }): I extends undefined ? R : I;
 /**
@@ -58,4 +64,4 @@ declare function treeDepth<T>(tree: T, props?: {
     children?: string;
 }): number;
 
-export { And, BFS, Cast, DFS, DFSReduce, Is, Not, Or, Pipe, TupleFirst, TupleLast, TupleSlice, TupleTails, UnNameTuple, UnionLast, UnionToInterFunction, treeDepth, withDefault };
+export { And, BFS, Cast, DFS, DFSReduce, Is, Not, Or, Pipe, TreeTraverseContext, TupleFirst, TupleLast, TupleSlice, TupleTails, UnNameTuple, UnionLast, UnionToInterFunction, treeDepth, withDefault };

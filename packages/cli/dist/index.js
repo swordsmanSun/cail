@@ -12,7 +12,7 @@ function setupBuild(ctx) {
   program.command("build").description("Build to static site").action(async () => {
     const config = await loadConfigObject(dirname);
     console.log(0);
-    const app = await createApp(config);
+    const app = createApp(config);
     console.log(1);
     app.use(tracerPluginOutput());
     console.log(2);
@@ -36,7 +36,7 @@ import { watch } from "chokidar";
 import { cwd } from "process";
 function createPackageJsonWatcher(app) {
   const { projects, analyze, write } = app;
-  const filesToWatch = DFSReduce(projects, (pre, cur) => [...pre, join(cur.path, cur.package)], []);
+  const filesToWatch = projects.reduce((pre, project) => [...pre, DFSReduce(project, (pre2, cur) => [...pre2, join(cur.path, cur.package)], [])], []);
   const watcher = watch(filesToWatch, {
     ignoreInitial: true
   });

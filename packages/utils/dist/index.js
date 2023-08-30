@@ -6,7 +6,7 @@ function Pipe(...fns) {
 // src/common/withDefault.ts
 function withDefault(value, defaultValue) {
   if (defaultValue !== null && !(defaultValue instanceof Array) && typeof defaultValue === "object") {
-    let obj = {};
+    let obj = value ?? {};
     Object.keys(defaultValue).forEach((key) => {
       obj[key] = withDefault(value?.[key], defaultValue[key]);
     });
@@ -17,19 +17,26 @@ function withDefault(value, defaultValue) {
 }
 
 // src/common/tree.ts
-function DFS(tree, callbackFn, props, depth = 1) {
-  props = props ?? { children: "children" };
-  if (Array.isArray(tree)) {
-    for (const node of tree) {
-      if (callbackFn(node, depth) === false)
-        return;
-      const subTree = node[props.children];
-      if (subTree && Array.isArray(subTree)) {
-        DFS(subTree, callbackFn, props, depth + 1);
-      }
-    }
-  } else {
-    DFS([tree], callbackFn, props, depth);
+function DFS(node, callbackFn, props, context) {
+  props = withDefault(props, { children: "children" });
+  if (!context) {
+    context = {
+      depth: 1
+    };
+  }
+  const { depth = 1 } = context;
+  const exit = callbackFn(node, context);
+  if (exit === false)
+    return;
+  node[props.children]?.forEach((childNode, i) => {
+    context.parent = node;
+    context.childIndex = i;
+    context.depth = depth + 1;
+    DFS(childNode, callbackFn, props, context);
+  });
+  if (exit instanceof Function) {
+    context.depth = depth;
+    exit(node, context);
   }
 }
 function BFS(tree, callbackFn, props) {
@@ -50,29 +57,24 @@ function BFS(tree, callbackFn, props) {
   }
 }
 function DFSReduce(tree, callbackFn, initialValue, props = { children: "children" }) {
-  if (Array.isArray(tree)) {
-    if (initialValue !== void 0) {
-      let result = initialValue;
-      DFS(tree, (node, depth) => {
-        result = callbackFn(result, node, depth);
-      }, props);
-      return result;
-    } else {
-      let result = tree[0];
-      if (result[props.children]) {
-        DFS(result[props.children], (node, depth) => {
-          result = callbackFn(result, node, depth);
-        }, null, 2);
-      }
-      DFS(tree.slice(1), (node, depth) => {
-        result = callbackFn(result, node, depth);
-      }, props);
-      return result;
-    }
+  if (initialValue !== void 0) {
+    let result = initialValue;
+    DFS(tree, (node, context) => {
+      result = callbackFn(result, node, context);
+    }, props);
+    return result;
+  } else {
+    let result = tree;
+    tree[props.children]?.forEach((node, index) => {
+      DFS(node, (node2, context) => {
+        result = callbackFn(result, node2, context);
+      }, null, { depth: 2, parent: tree, childIndex: index });
+    });
+    return result;
   }
 }
 function treeDepth(tree, props) {
-  return DFSReduce(tree, (pre, node, depth) => {
+  return DFSReduce(tree, (pre, node, { depth }) => {
     return Math.max(depth, pre);
   }, 1, props);
 }

@@ -2,6 +2,7 @@ import { defineConfig } from "@tracer/node"
 
 export default defineConfig({
     base: "/tracer/",
-    plugins: [],
+    // projects:[],
+    // plugins: [],
     // theme: "default",
 })

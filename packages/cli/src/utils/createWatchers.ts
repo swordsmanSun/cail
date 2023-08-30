@@ -11,7 +11,7 @@ import { cwd } from "process";
 export function createPackageJsonWatcher(app: App) {
     const { projects, analyze, write } = app
 
-    const filesToWatch = DFSReduce(projects, (pre, cur) => [...pre, join(cur.path, cur.package)], [])
+    const filesToWatch = projects.reduce((pre, project) => [...pre, DFSReduce(project, (pre, cur) => [...pre, join(cur.path, cur.package)], [])], [])
 
     const watcher = watch(filesToWatch, {
         ignoreInitial: true

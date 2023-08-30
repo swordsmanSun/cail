@@ -22,12 +22,9 @@ onMounted(() => {
         grid: {
             visible: true,
         },
-        // scroller: {
-        //     enabled: true,
-        //     pageVisible: true,
-        //     pageBreak: true,
-        //     pannable: true,
-        // },
+        panning: {
+            enabled: true,
+        },
         mousewheel: {
             enabled: true,
             modifiers: ['ctrl', 'meta'],

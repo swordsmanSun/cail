@@ -59,7 +59,7 @@ export function resolveProjectOptions(projectsConfigs?: ProjectConfig[], project
     return projectOptionsList
 }
 export function resolveServerOptions(serverConfigs?: ServerConfig) {
-    return withDefault<ServerConfig>(serverConfigs, {
+    return withDefault(serverConfigs, {
         port: 3001,
         host: "127.0.0.1",
         open: true,
@@ -67,7 +67,7 @@ export function resolveServerOptions(serverConfigs?: ServerConfig) {
     })
 }
 export function resolveBuildOptions(buildConfigs?: buildConfig) {
-    return withDefault<buildConfig>(buildConfigs, {
+    return withDefault(buildConfigs, {
         template: join(cwd(), "node_modules", "@tracer/client/templates/build.html")
     })
 }

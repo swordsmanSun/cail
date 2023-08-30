@@ -7,7 +7,7 @@
     "scripts": {
         "docs:dev": "vuepress dev docs",
         "docs:build": "vuepress build docs",
-        "deploy": "deploy",
+        "deploy": "vuepress build docs && deploy",
         "test": "vitest"
     },
     "keywords": [],

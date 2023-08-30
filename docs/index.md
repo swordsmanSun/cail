@@ -1,7 +1,7 @@
 ---
 home: true
 actions:
-  - text: 指南
+  - text: 快速开始
     link: /guide/install/
     type: primary
   

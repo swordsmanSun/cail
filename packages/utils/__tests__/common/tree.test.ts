@@ -29,6 +29,50 @@ describe("DFS", () => {
         DFS(tree, (node, { depth: _depth }) => depth = Math.max(_depth, depth));
         expect(depth).toBe(3)
     })
+
+    test("the correct number of exit function calls", () => {
+        const fn = vi.fn()
+        DFS(tree, () => fn)
+        expect(fn).toBeCalledTimes(7)
+    })
+
+    test("the inverted order calls of exit function", () => {
+        let depths = []
+        DFS(tree, () => (node, context) => {
+            depths.push(context.depth)
+        })
+        expect(depths).toEqual([3, 3, 2, 3, 3, 2, 1])
+    })
+
+    test("the context is global", () => {
+        const results = []
+        DFS(tree, (node, context: any) => {
+            if (!context.global) {
+                context.global = 1
+            }
+            results.push(context.global)
+
+            return (node, context: any) => {
+                results.push(context.global)
+            }
+        })
+        expect(results).toEqual(new Array(14).fill(1))
+    })
+
+    test("the context is global", () => {
+        const results = []
+        DFS(tree, (node, context: any) => {
+            if (!context.global) {
+                context.global = 1
+            }
+            results.push(context.global++)
+
+            return (node, context: any) => {
+                results.push(context.global++)
+            }
+        })
+        expect(results).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+    })
 })
 
 
