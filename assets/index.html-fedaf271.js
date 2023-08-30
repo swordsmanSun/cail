@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-8daa1a0e","path":"/","title":"","lang":"en-US","frontmatter":{"home":true,"actions":[{"text":"快速开始","link":"/guide/install/","type":"primary"}]},"headers":[],"git":{"updatedTime":1692413865000,"contributors":[{"name":"soon","email":"2932626714@qq.com","commits":1}]},"filePathRelative":"index.md"}');export{e as data};

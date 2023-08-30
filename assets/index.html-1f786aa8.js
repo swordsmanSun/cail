@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-abc5e3c2","path":"/insight/plugins/","title":"","lang":"en-US","frontmatter":{},"headers":[{"level":3,"title":"plugin-output","slug":"plugin-output","link":"#plugin-output","children":[]}],"git":{"updatedTime":null,"contributors":[]},"filePathRelative":"insight/plugins/index.md"}');export{t as data};
