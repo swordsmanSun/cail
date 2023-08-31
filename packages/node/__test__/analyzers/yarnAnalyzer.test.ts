@@ -1,9 +1,9 @@
 import { join } from "path";
-import { expect, test } from "vitest";
+import { expect, test, vi, describe } from "vitest";
 import { DepForest, yarnAnalyzer } from "../../src";
 import { importPackageJson } from "../../src/utils/importModule";
 
-test("yarnAnalyzer", () => {
+describe("yarnAnalyzer", () => {
     const reactPackageObject = importPackageJson(join(__dirname, "./yarnProject/node_modules/react/package.json"))
     const looseEnvifyPackageObject = importPackageJson(join(__dirname, "./yarnProject/node_modules/loose-envify/package.json"))
     const jsTokensPackageObject = importPackageJson(join(__dirname, "./yarnProject/node_modules/js-tokens/package.json"))
@@ -11,12 +11,16 @@ test("yarnAnalyzer", () => {
     const depthTree: DepForest = [
         {
             packageModule: reactPackageObject,
+            depth: 1,
             children: [
                 {
                     packageModule: looseEnvifyPackageObject,
+                    depth: 2,
                     children: [
                         {
-                            packageModule: jsTokensPackageObject
+                            depth: 3,
+                            packageModule: jsTokensPackageObject,
+                            children: []
                         }
                     ]
                 }
@@ -27,14 +31,24 @@ test("yarnAnalyzer", () => {
     const reactPkgNode = depthTree[0]
     const looseEnvifyPkgNode = reactPkgNode.children![0]
     looseEnvifyPkgNode.children.push({
-        ...reactPkgNode,
+        depth: 3,
+        packageModule: reactPkgNode.packageModule,
         isCircular: true
     })
+    const fn = vi.fn()
 
-    // expect(
-    //     await yarnAnalyzer(
-    //         join(__dirname, "./npmProject/package.json"),
-    //         join(__dirname, "./npmProject/node_modules")
-    //     )
-    // ).toMatchObject(depthTree)
+    const dependencyTree = yarnAnalyzer(
+        join(__dirname, "./npmProject/package.json"),
+        join(__dirname, "./npmProject/node_modules"),
+        fn
+    )
+
+
+    test("the correct dependency tree", () => {
+        expect(dependencyTree).toMatchObject(depthTree)
+    })
+
+    test("the correct calls to callback function", () => {
+        expect(fn).toBeCalledTimes(4)
+    })
 })

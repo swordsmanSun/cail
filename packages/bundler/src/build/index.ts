@@ -1,9 +1,8 @@
 import { App } from "@tracer/node";
 import { Bundler } from "../../types/bundler";
 import { BundlerConfigs } from "../../types/options";
-import { debug } from "@tracer/node"
 import { resolveViteOptions } from "../utils/resolveOptions";
-import { build as viteBuild } from "vite";
+import debug from "debug";
 
 const log = debug("@tracer/bundler:build")
 

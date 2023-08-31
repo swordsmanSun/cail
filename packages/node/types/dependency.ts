@@ -9,6 +9,7 @@ export type DepNode = {
     /**
      * Cyclic node or not
      */
+    depth: number
     isCircular?: boolean
     children?: DepNode[]
 }

@@ -25,6 +25,6 @@ export const getAnalyzerByName = (() => {
 function NodeAnalyzer(analyzer: typeof npmAnalyzer) {
     // TODO  visitors are needed to visit each node
     return (projectPath: string, visitor: Visitor) => {
-        return analyzer(join(projectPath, "package.json"), join(projectPath, "node_modules"))
+        return analyzer(join(projectPath, "package.json"), join(projectPath, "node_modules"), visitor)
     }
 }

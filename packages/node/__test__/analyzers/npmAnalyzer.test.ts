@@ -1,22 +1,26 @@
 import { importPackageJson } from "../../src/utils/importModule";
 import { join } from "path";
-import { expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { DepForest, npmAnalyzer } from "../../src";
 
-test("npmAnalyzer", async () => {
-    const reactPackageObject = await importPackageJson(join(__dirname, "./npmProject/node_modules/react/package.json"))
-    const looseEnvifyPackageObject = await importPackageJson(join(__dirname, "./npmProject/node_modules/loose-envify/package.json"))
-    const jsTokensPackageObject = await importPackageJson(join(__dirname, "./npmProject/node_modules/js-tokens/package.json"))
+describe("npmAnalyzer", () => {
+    const reactPackageObject = importPackageJson(join(__dirname, "./npmProject/node_modules/react/package.json"))
+    const looseEnvifyPackageObject = importPackageJson(join(__dirname, "./npmProject/node_modules/loose-envify/package.json"))
+    const jsTokensPackageObject = importPackageJson(join(__dirname, "./npmProject/node_modules/js-tokens/package.json"))
 
     const depthTree: DepForest = [
         {
             packageModule: reactPackageObject,
+            depth: 1,
             children: [
                 {
                     packageModule: looseEnvifyPackageObject,
+                    depth: 2,
                     children: [
                         {
-                            packageModule: jsTokensPackageObject
+                            depth: 3,
+                            packageModule: jsTokensPackageObject,
+                            children: []
                         }
                     ]
                 }
@@ -27,13 +31,23 @@ test("npmAnalyzer", async () => {
     const reactPkgNode = depthTree[0]
     const looseEnvifyPkgNode = reactPkgNode.children![0]
     looseEnvifyPkgNode.children.push({
-        ...reactPkgNode,
+        depth: 3,
+        packageModule: reactPkgNode.packageModule,
         isCircular: true
     })
-    // expect(
-    //     await npmAnalyzer(
-    //         join(__dirname, "./npmProject/package.json"),
-    //         join(__dirname, "./npmProject/node_modules")
-    //     )
-    // ).toMatchObject(depthTree)
+    const fn = vi.fn()
+
+    const dependencyTree = npmAnalyzer(
+        join(__dirname, "./npmProject/package.json"),
+        join(__dirname, "./npmProject/node_modules"),
+        fn
+    )
+
+    test("the correct dependency tree", () => {
+        expect(dependencyTree).toMatchObject(depthTree)
+    })
+
+    test("the correct calls to callback function", () => {
+        expect(fn).toBeCalledTimes(4)
+    })
 })

@@ -3,7 +3,7 @@ import { DepNode } from "./dependency"
 
 export type Hooks = {
     temped: () => void
-    analyzing: (depNode: DepNode, depth: number) => void
+    analyzing: (depNode: DepNode) => void
     watching: () => void
     analyzed: (project: ProjectOptions) => void
     built: () => void

@@ -24,8 +24,7 @@ export function CreateAnalyze(projects: App["projects"]) {
 
             const analyzer = getAnalyzerByName(type)
             // set dependency tree data
-            // TODO  visitors are needed to visit each node
-            project.dependencyTree = analyzer(path, (node) => runHook("analyzing", node, depth))
+            project.dependencyTree = analyzer(path, (node) => runHook("analyzing", node))
 
             runHook("analyzed", project)
 

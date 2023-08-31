@@ -1,6 +1,6 @@
 // src/index.ts
-import { default as default2 } from "debug";
-import { default as default3 } from "chalk";
+import debug4 from "debug";
+import chalk2 from "chalk";
 
 // src/helper/index.ts
 function defineConfig(config) {
@@ -368,9 +368,9 @@ function createApp(config, projectDir) {
 }
 export {
   CreateUsePluginFunction,
-  default3 as chalk,
+  chalk2 as chalk,
   createApp,
-  default2 as debug,
+  debug4 as debug,
   defineConfig,
   defineOptions,
   getActivePlugin,

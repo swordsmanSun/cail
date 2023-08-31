@@ -10,7 +10,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
 ]
 
 export const router = createRouter({
-    // TODO need to change
     history: createWebHistory(userConfig.base),
     routes,
 })

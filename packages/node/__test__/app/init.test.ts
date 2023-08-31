@@ -36,7 +36,7 @@ describe("init", async () => {
         path: "D:/07_project/19_字节青训营/01_tracer/packages/node/__test__/app",
         packageModule: importPackageJson(join(__dirname, "package.json")),
         children: [],
-        dependencyTree: 1,
+        dependencyTree: [],
         package: "package.json"
     }
     test("the correct times of calls", () => expect(fn).toBeCalledTimes(2))

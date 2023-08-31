@@ -1,11 +1,11 @@
 import { importPackageJson } from "../utils/importModule"
-import { DepForest } from "../../types/dependency";
+import { DepForest, Visitor } from "../../types/dependency";
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns 
  */
-export function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest {
+export function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string, visitor: Visitor): DepForest {
     const module = importPackageJson(pkgJSONAbsPath)
 
     // TODO the codes

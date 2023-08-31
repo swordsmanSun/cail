@@ -15,6 +15,7 @@
         "@tracer/node": "workspace:^",
         "@tracer/utils": "workspace:^",
         "@vitejs/plugin-vue": "^4.3.3",
+        "debug": "^4.3.4",
         "vite": "^4.4.9"
     }
 }

@@ -1,6 +1,3 @@
-// src/build/index.ts
-import { debug } from "@tracer/node";
-
 // src/utils/resolveOptions.ts
 import vuePlugin from "@vitejs/plugin-vue";
 import { mergeConfig } from "vite";
@@ -67,6 +64,7 @@ function resolveViteOptions(props) {
 }
 
 // src/build/index.ts
+import debug from "debug";
 var log = debug("@tracer/bundler:build");
 async function build(bundlerConfigs, app) {
   log("compiling app...");
