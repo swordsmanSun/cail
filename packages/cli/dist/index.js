@@ -6,20 +6,13 @@ import { cwd as cwd2 } from "process";
 
 // src/settings/build.ts
 import { createApp, chalk, loadConfigObject, runHook } from "@tracer/node";
-import { tracerPluginOutput } from "@tracer/plugin-output";
 function setupBuild(ctx) {
   const { program, dirname } = ctx;
   program.command("build").description("Build to static site").action(async () => {
     const config = await loadConfigObject(dirname);
-    console.log(0);
     const app = createApp(config);
-    console.log(1);
-    app.use(tracerPluginOutput());
-    console.log(2);
     app.init();
-    console.log(3);
     app.write();
-    console.log(4);
     runHook("built");
     console.log(chalk.green("tracer build success"));
   });
@@ -27,7 +20,6 @@ function setupBuild(ctx) {
 
 // src/settings/dev.ts
 import { createApp as createApp2, loadConfigObject as loadConfigObject2 } from "@tracer/node";
-import { tracerPluginOutput as tracerPluginOutput2 } from "@tracer/plugin-output";
 
 // src/utils/createWatchers.ts
 import { DFSReduce } from "@tracer/utils";
@@ -62,8 +54,7 @@ function setupDev(ctx) {
   const { program, dirname } = ctx;
   program.command("dev").description("dev to static site").action(async function dev() {
     const config = await loadConfigObject2(dirname);
-    const app = await createApp2(config);
-    app.use(tracerPluginOutput2());
+    const app = createApp2(config);
     app.init();
     app.write();
     const closeServer = await app.bundler.dev(app);

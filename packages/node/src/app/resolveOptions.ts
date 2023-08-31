@@ -26,6 +26,7 @@ export function resolveProjectOptions(projectsConfigs?: ProjectConfig[], project
         const packageJsonObject = importPackageJson(join(projectDir || cwd(), "./package.json"))
         projectsConfigs.push({
             name: packageJsonObject.name,
+            // TODO if is the pnpm ，we need provide a root node_modules dir
             path: projectDir || cwd() && normalize(projectDir || cwd()).split(sep).join("/"),
             type: "npm",
             package: "package.json"

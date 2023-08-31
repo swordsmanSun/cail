@@ -176,6 +176,12 @@ importers:
       '@tracer/node':
         specifier: workspace:^
         version: link:../../node
+      '@tracer/utils':
+        specifier: workspace:^
+        version: link:../../utils
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
 
   packages/themes/theme-default: {}
 

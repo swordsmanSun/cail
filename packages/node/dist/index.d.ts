@@ -1,10 +1,9 @@
-export { default as debug } from 'debug';
-export { default as chalk } from 'chalk';
 import { Bundler } from '@tracer/bundler';
+export { default as chalk } from 'chalk';
 
 type Hooks = {
     temped: () => void;
-    analyzing: (depNode: DepNode, depth: number) => void;
+    analyzing: (depNode: DepNode) => void;
     watching: () => void;
     analyzed: (project: ProjectOptions) => void;
     built: () => void;
@@ -46,6 +45,7 @@ type DepNode = {
     /**
      * Cyclic node or not
      */
+    depth: number;
     isCircular?: boolean;
     children?: DepNode[];
 };
@@ -210,28 +210,28 @@ declare function importPackageJson(fileAbsPath: string): PackageJsonObject;
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest;
+declare function npmAnalyzer(pkgJSONAbsPath: string, modulesDir: string, visitor: Visitor): DepForest;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest;
+declare function pnpmAnalyzer(pkgJSONAbsPath: string, modulesDir: string, visitor: Visitor): DepForest;
 
 /**
  * @param pkgJSONAbsPath The absolute file path of the package.json of the project
  * @param modulesDir Dependencies directory
  * @returns
  */
-declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string): DepForest;
+declare function yarnAnalyzer(pkgJSONAbsPath: string, modulesDir: string, visitor: Visitor): DepForest;
 
 declare const getAnalyzerByName: (name: "npm" | "pnpm" | "yarn") => (projectPath: string, visitor: Visitor) => DepForest;
 
 declare function createApp(config: Config, projectDir?: string): App;
 
 declare const hooks: {
-    analyzing: ((depNode: DepNode, depth: number) => void)[];
+    analyzing: ((depNode: DepNode) => void)[];
     analyzed: ((project: ProjectOptions) => void)[];
     initialized: ((projects: ProjectOptions[]) => void)[];
     temped: (() => void)[];

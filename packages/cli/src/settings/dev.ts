@@ -1,5 +1,4 @@
 import { createApp, loadConfigObject } from "@tracer/node"
-import { tracerPluginOutput } from "@tracer/plugin-output"
 import { createPackageJsonWatcher, createUserConfigWatcher } from "../utils/createWatchers"
 
 export function setupDev(ctx: CliContext) {
@@ -11,9 +10,7 @@ export function setupDev(ctx: CliContext) {
         .action(async function dev() {
             const config = await loadConfigObject(dirname)
             // create app
-            const app = await createApp(config)
-            // TODO  use the official plugins
-            app.use(tracerPluginOutput())
+            const app = createApp(config)
             // init
             app.init()
             // write temp

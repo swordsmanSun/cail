@@ -23,7 +23,6 @@ export const getAnalyzerByName = (() => {
  * create analyzer function with default params
  */
 function NodeAnalyzer(analyzer: typeof npmAnalyzer) {
-    // TODO  visitors are needed to visit each node
     return (projectPath: string, visitor: Visitor) => {
         return analyzer(join(projectPath, "package.json"), join(projectPath, "node_modules"), visitor)
     }

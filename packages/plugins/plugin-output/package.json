@@ -12,6 +12,8 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@tracer/node": "workspace:^"
+        "@tracer/node": "workspace:^",
+        "@tracer/utils": "workspace:^",
+        "fs-extra": "^11.1.1"
     }
 }

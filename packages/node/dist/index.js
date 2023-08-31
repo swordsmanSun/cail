@@ -1,7 +1,3 @@
-// src/index.ts
-import debug4 from "debug";
-import chalk2 from "chalk";
-
 // src/helper/index.ts
 function defineConfig(config) {
   return config;
@@ -90,25 +86,52 @@ async function loadConfigObject(dirname2) {
 }
 
 // src/analyzers/npmAnalyzer.ts
-function npmAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = importPackageJson(pkgJSONAbsPath);
-  return 1;
+import { join as join2 } from "path";
+function npmAnalyzer(pkgJSONAbsPath, modulesDir, visitor) {
+  const dependencyNode = {
+    packageModule: importPackageJson(pkgJSONAbsPath),
+    depth: 0,
+    isCircular: false,
+    children: []
+  };
+  const historyDependencyNames = [];
+  const recursion = (dependencies, parent, depth) => {
+    Object.keys(dependencies).forEach((dependencyName) => {
+      const isVisited = historyDependencyNames.includes(dependencyName);
+      historyDependencyNames.push(dependencyName);
+      const packageModule = importPackageJson(join2(modulesDir, dependencyName, "package.json"));
+      const dependencyNode2 = {
+        packageModule,
+        depth,
+        children: []
+      };
+      if (isVisited) {
+        dependencyNode2.isCircular = true;
+      }
+      visitor(dependencyNode2);
+      parent.children.push(dependencyNode2);
+      if (!isVisited && packageModule.dependencies) {
+        recursion(packageModule.dependencies, dependencyNode2, depth + 1);
+      }
+    });
+  };
+  recursion(dependencyNode.packageModule.dependencies, dependencyNode, 1);
+  return dependencyNode.children;
 }
 
 // src/analyzers/pnpmAnalyzer.ts
-function pnpmAnalyzer(pkgJSONAbsPath, modulesDir) {
+function pnpmAnalyzer(pkgJSONAbsPath, modulesDir, visitor) {
   const module = importPackageJson(pkgJSONAbsPath);
   return 1;
 }
 
 // src/analyzers/yarnAnalyzer.ts
-function yarnAnalyzer(pkgJSONAbsPath, modulesDir) {
-  const module = importPackageJson(pkgJSONAbsPath);
-  return 1;
+function yarnAnalyzer(pkgJSONAbsPath, modulesDir, visitor) {
+  return npmAnalyzer(pkgJSONAbsPath, modulesDir, visitor);
 }
 
 // src/analyzers/base.ts
-import { join as join2 } from "path";
+import { join as join3 } from "path";
 var getAnalyzerByName = (() => {
   const analyzerMap = {
     npm: npmAnalyzer,
@@ -124,30 +147,30 @@ var getAnalyzerByName = (() => {
 })();
 function NodeAnalyzer(analyzer) {
   return (projectPath, visitor) => {
-    return analyzer(join2(projectPath, "package.json"), join2(projectPath, "node_modules"));
+    return analyzer(join3(projectPath, "package.json"), join3(projectPath, "node_modules"), visitor);
   };
 }
 
 // src/app/resolveOptions.ts
 import { withDefault } from "@tracer/utils";
-import { join as join3, normalize, sep } from "path";
+import { join as join4, normalize, sep } from "path";
 import { cwd as cwd2 } from "process";
 import { bundler } from "@tracer/bundler";
 function resolvePathOptions(dirConfig, projectDir) {
-  const PathJoin = (basePath) => (...relativePaths) => join3(basePath, ...relativePaths);
+  const PathJoin = (basePath) => (...relativePaths) => join4(basePath, ...relativePaths);
   return {
-    root: PathJoin(join3(dirConfig?.root ?? projectDir ?? cwd2(), "./analysis")),
-    temp: PathJoin(join3(dirConfig?.temp ?? projectDir ?? cwd2(), "./analysis/.temp")),
-    out: PathJoin(join3(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/dist")),
-    cache: PathJoin(join3(dirConfig?.cache ?? projectDir ?? cwd2(), "./analysis/.cache")),
-    public: PathJoin(join3(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/public"))
+    root: PathJoin(join4(dirConfig?.root ?? projectDir ?? cwd2(), "./analysis")),
+    temp: PathJoin(join4(dirConfig?.temp ?? projectDir ?? cwd2(), "./analysis/.temp")),
+    out: PathJoin(join4(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/dist")),
+    cache: PathJoin(join4(dirConfig?.cache ?? projectDir ?? cwd2(), "./analysis/.cache")),
+    public: PathJoin(join4(dirConfig?.out ?? projectDir ?? cwd2(), "./analysis/public"))
   };
 }
 function resolveProjectOptions(projectsConfigs, projectDir) {
   let projectOptionsList = [];
   if (!projectsConfigs?.length) {
     projectsConfigs = [];
-    const packageJsonObject = importPackageJson(join3(projectDir || cwd2(), "./package.json"));
+    const packageJsonObject = importPackageJson(join4(projectDir || cwd2(), "./package.json"));
     projectsConfigs.push({
       name: packageJsonObject.name,
       path: projectDir || cwd2() && normalize(projectDir || cwd2()).split(sep).join("/"),
@@ -161,9 +184,9 @@ function resolveProjectOptions(projectsConfigs, projectDir) {
     parentChildren.push({
       ...node,
       path: node.path && normalize(node.path).split(sep).join("/"),
-      name: node.name || importPackageJson(join3(node.path, "./package.json")).name,
+      name: node.name || importPackageJson(join4(node.path, "./package.json")).name,
       type: node.type || "npm",
-      packageModule: importPackageJson(join3(node.path, "./package.json")),
+      packageModule: importPackageJson(join4(node.path, "./package.json")),
       children: [],
       dependencyTree: null,
       package: node.package || "package.json"
@@ -183,12 +206,12 @@ function resolveServerOptions(serverConfigs) {
     port: 3001,
     host: "127.0.0.1",
     open: true,
-    template: join3(cwd2(), "node_modules", "@tracer/client/templates/dev.html")
+    template: join4(cwd2(), "node_modules", "@tracer/client/templates/dev.html")
   });
 }
 function resolveBuildOptions(buildConfigs) {
   return withDefault(buildConfigs, {
-    template: join3(cwd2(), "node_modules", "@tracer/client/templates/build.html")
+    template: join4(cwd2(), "node_modules", "@tracer/client/templates/build.html")
   });
 }
 function resolveBundlerOptions(bundlerConfigs) {
@@ -246,7 +269,7 @@ function CreateAnalyze(projects) {
         return;
       const { children = [], type, path } = project;
       const analyzer = getAnalyzerByName(type);
-      project.dependencyTree = analyzer(path, (node) => runHook("analyzing", node, depth));
+      project.dependencyTree = analyzer(path, (node) => runHook("analyzing", node));
       runHook("analyzed", project);
       for (const child of children) {
         await depthTraverse(child, depth + 1);
@@ -366,11 +389,13 @@ function createApp(config, projectDir) {
   app.write = CreateWriteFunction(app);
   return app;
 }
+
+// src/index.ts
+import { default as default2 } from "chalk";
 export {
   CreateUsePluginFunction,
-  chalk2 as chalk,
+  default2 as chalk,
   createApp,
-  debug4 as debug,
   defineConfig,
   defineOptions,
   getActivePlugin,
