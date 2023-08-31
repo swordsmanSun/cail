@@ -1,29 +1,28 @@
 import { importPackageJson } from "../../src/utils/importModule";
 import { join } from "path";
-import { expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { DepForest } from "../../types/dependency";
 import { pnpmAnalyzer } from "../../src";
 
-test("pnpmAnalyzer", () => {
-    const reactPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/react/package.json"))
-    const looseEnvifyPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/loose-envify/package.json"))
-    const jsTokensPackageObject = importPackageJson(join(__dirname, "./pnpmProject/node_modules/.pnpm/node_modules/js-tokens/package.json"))
+describe("pnpmAnalyzer", () => {
+    const reactPackageObject = importPackageJson(join(__dirname, "./npmProject/node_modules/react/package.json"))
+    const looseEnvifyPackageObject = importPackageJson(join(__dirname, "./npmProject/node_modules/loose-envify/package.json"))
+    const jsTokensPackageObject = importPackageJson(join(__dirname, "./npmProject/node_modules/js-tokens/package.json"))
 
     const depthTree: DepForest = [
         {
             packageModule: reactPackageObject,
+            depth: 1,
             children: [
                 {
                     packageModule: looseEnvifyPackageObject,
+                    depth: 2,
                     children: [
                         {
-                            packageModule: jsTokensPackageObject
-                        },
-                        // {
-                        //     packageModule: reactPackageObject,
-                        //     children: [],
-                        //     isCircular: true
-                        // }
+                            depth: 3,
+                            packageModule: jsTokensPackageObject,
+                            children: []
+                        }
                     ]
                 }
             ]
@@ -33,14 +32,23 @@ test("pnpmAnalyzer", () => {
     const reactPkgNode = depthTree[0]
     const looseEnvifyPkgNode = reactPkgNode.children![0]
     looseEnvifyPkgNode.children.push({
-        ...reactPkgNode,
+        depth: 3,
+        packageModule: reactPkgNode.packageModule,
         isCircular: true
     })
+    const fn = vi.fn()
 
-    // expect(
-    //     pnpmAnalyzer(
-    //         join(__dirname, "./pnpmProject/package.json"),
-    //         join(__dirname, "./pnpmProject/node_modules")
-    //     )
-    // ).toMatchObject(depthTree)
+    const dependencyTree = pnpmAnalyzer(
+        join(__dirname, "./npmProject/package.json"),
+        join(__dirname, "./npmProject/node_modules"),
+        fn
+    )
+
+    test("the correct dependency tree", () => {
+        expect(dependencyTree).toMatchObject(depthTree)
+    })
+
+    test("the correct calls to callback function", () => {
+        expect(fn).toBeCalledTimes(4)
+    })
 })
